@@ -115,7 +115,7 @@ const SubmitRequest = () => {
                 Submit Purchase Request
               </h1>
               <p className="text-gray-600 mt-1">
-                Create a new purchase request for approval
+                Create a new request in your ProcureFlow system
               </p>
             </div>
           </div>

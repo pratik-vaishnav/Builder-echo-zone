@@ -87,7 +87,7 @@ const Dashboard = () => {
             Welcome back, John!
           </h1>
           <p className="text-gray-600 text-lg">
-            Here's what's happening with your procurement system today.
+            Here's what's happening with your ProcureFlow dashboard today.
           </p>
         </div>
 

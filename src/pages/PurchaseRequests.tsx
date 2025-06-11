@@ -163,7 +163,7 @@ const PurchaseRequests = () => {
               Purchase Requests
             </h1>
             <p className="text-gray-600 mt-1">
-              Manage and track all purchase requests
+              Manage and track all requests in ProcureFlow
             </p>
           </div>
           <div className="flex-1 flex justify-end space-x-3">

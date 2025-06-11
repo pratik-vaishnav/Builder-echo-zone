@@ -98,7 +98,7 @@ const UserProfile = () => {
                 <div className="w-4 h-4 bg-white rounded transform rotate-45"></div>
               </div>
               <h1 className="text-xl font-semibold text-gray-900">
-                Purchase Manager
+                ProcureFlow
               </h1>
             </div>
           </div>
@@ -293,7 +293,7 @@ const UserProfile = () => {
         {/* Footer */}
         <div className="mt-12 pt-8 border-t border-gray-200">
           <p className="text-sm text-gray-500 text-center">
-            © 2024 Purchase Manager. All rights reserved.
+            © 2024 ProcureFlow. All rights reserved.
           </p>
         </div>
       </div>

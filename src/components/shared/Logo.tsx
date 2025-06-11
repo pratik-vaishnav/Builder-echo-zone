@@ -51,10 +51,10 @@ const Logo = ({ className, showText = true, size = "md" }: LogoProps) => {
               sizeClasses[size].text,
             )}
           >
-            Purchase Manager
+            ProcureFlow
           </h1>
           <p className="text-xs text-gray-500 font-medium tracking-wide">
-            Procurement System
+            Smart Procurement Platform
           </p>
         </div>
       )}

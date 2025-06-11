@@ -239,7 +239,7 @@ const ApproveRequests = () => {
             Approve Requests Dashboard
           </h1>
           <p className="text-gray-600 text-lg">
-            Review and approve pending purchase requests
+            Review and approve requests in your ProcureFlow pipeline
           </p>
         </div>
 
