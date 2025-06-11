@@ -267,46 +267,50 @@ const Index = () => {
                   </div>
                 </div>
               </div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Order No.</TableHead>
-                    <TableHead>Supplier</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Order Date</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {currentOrders.map((order) => (
-                    <TableRow key={order.orderNo}>
-                      <TableCell className="font-medium">
-                        {order.orderNo}
-                      </TableCell>
-                      <TableCell>{order.supplier}</TableCell>
-                      <TableCell>
-                        <Badge className={cn("border-0", order.statusColor)}>
-                          {order.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{order.orderDate}</TableCell>
-                      <TableCell className="font-medium">
-                        {order.amount}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => alert("Order details would open here")}
-                        >
-                          View Details
-                        </Button>
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Order No.</TableHead>
+                      <TableHead>Supplier</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Order Date</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {currentOrders.map((order) => (
+                      <TableRow key={order.orderNo}>
+                        <TableCell className="font-medium">
+                          {order.orderNo}
+                        </TableCell>
+                        <TableCell>{order.supplier}</TableCell>
+                        <TableCell>
+                          <Badge className={cn("border-0", order.statusColor)}>
+                            {order.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{order.orderDate}</TableCell>
+                        <TableCell className="font-medium">
+                          {order.amount}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              alert("Order details would open here")
+                            }
+                          >
+                            View Details
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
               <div className="flex items-center justify-between p-6 border-t border-gray-200">
                 <div className="text-sm text-gray-500">
                   Showing {Math.min(startIndex + 1, filteredOrders.length)} to{" "}
