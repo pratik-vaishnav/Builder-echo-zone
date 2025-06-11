@@ -41,26 +41,16 @@ const SignUp = () => {
         <div className="absolute top-1/2 left-1/3 w-24 h-24 bg-yellow-300/30 rounded-full blur-lg"></div>
 
         <div className="relative flex flex-col justify-center items-center text-white px-12 z-10">
-          <div className="mb-8">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                <ProcureFlowIcon
-                  variant="outline"
-                  size="md"
-                  className="text-white bg-transparent shadow-none"
-                />
-              </div>
-              <span className="text-3xl font-bold">ProcureFlow</span>
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+              <ProcureFlowIcon
+                variant="outline"
+                size="md"
+                className="text-white bg-transparent shadow-none"
+              />
             </div>
+            <span className="text-3xl font-bold">ProcureFlow</span>
           </div>
-
-          <h1 className="text-4xl font-bold mb-6 text-center leading-tight">
-            ProcureFlow
-          </h1>
-          <p className="text-xl text-center text-white/90 max-w-md leading-relaxed">
-            Streamline your procurement workflow. From requests to orders, all
-            in one smart platform.
-          </p>
         </div>
       </div>
 
