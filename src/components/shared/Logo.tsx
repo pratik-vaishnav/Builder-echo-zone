@@ -1,4 +1,4 @@
-import { Package } from "lucide-react";
+import { Workflow } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -39,7 +39,7 @@ const Logo = ({ className, showText = true, size = "md" }: LogoProps) => {
           sizeClasses[size].container,
         )}
       >
-        <Package className={cn("text-white", sizeClasses[size].icon)} />
+        <Workflow className={cn("text-white", sizeClasses[size].icon)} />
       </div>
 
       {/* Logo Text */}
