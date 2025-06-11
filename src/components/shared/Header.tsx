@@ -31,7 +31,7 @@ const Header = ({ showSearch = true, className }: HeaderProps) => {
   return (
     <header
       className={cn(
-        "bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50",
+        "bg-white/80 backdrop-blur-lg border-b border-gray-200/50 shadow-lg sticky top-0 z-50",
         className,
       )}
     >
