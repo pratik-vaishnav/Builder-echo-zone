@@ -222,12 +222,14 @@ const PurchaseRequests = () => {
               </Link>
             </nav>
           </div>
-          <Avatar>
-            <AvatarImage src="/placeholder.svg" />
-            <AvatarFallback className="bg-indigo-100 text-indigo-600">
-              AB
-            </AvatarFallback>
-          </Avatar>
+          <Link to="/profile">
+            <Avatar>
+              <AvatarImage src="/placeholder.svg" />
+              <AvatarFallback className="bg-indigo-100 text-indigo-600">
+                AB
+              </AvatarFallback>
+            </Avatar>
+          </Link>
         </div>
       </header>
 

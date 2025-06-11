@@ -267,12 +267,14 @@ const Index = () => {
               </span>
             </nav>
           </div>
-          <Avatar>
-            <AvatarImage src="/placeholder.svg" />
-            <AvatarFallback className="bg-indigo-100 text-indigo-600">
-              JD
-            </AvatarFallback>
-          </Avatar>
+          <Link to="/profile">
+            <Avatar>
+              <AvatarImage src="/placeholder.svg" />
+              <AvatarFallback className="bg-indigo-100 text-indigo-600">
+                JD
+              </AvatarFallback>
+            </Avatar>
+          </Link>
         </div>
       </header>
 
@@ -333,10 +335,12 @@ const Index = () => {
                       <Filter className="h-4 w-4 mr-2" />
                       Filter
                     </Button>
-                    <Button className="bg-indigo-600 hover:bg-indigo-700">
-                      <Plus className="h-4 w-4 mr-2" />
-                      New Order
-                    </Button>
+                    <Link to="/submit-request">
+                      <Button className="bg-indigo-600 hover:bg-indigo-700">
+                        <Plus className="h-4 w-4 mr-2" />
+                        New Order
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </div>
