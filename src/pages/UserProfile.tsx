@@ -22,6 +22,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import Layout from "@/components/shared/Layout";
+import ProcureFlowIcon from "@/components/shared/ProcureFlowIcon";
 
 const connectedAccounts = [
   {
@@ -148,16 +149,12 @@ const UserProfile = () => {
             {/* Security Settings */}
             <Card className="mt-6 card-shadow">
               <CardContent className="p-6">
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center">
-                    <Shield className="h-4 w-4 text-red-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Security Settings
-                  </h3>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+            <div className="flex items-center space-x-4">
+              <ProcureFlowIcon size="md" />
+              <h1 className="text-xl font-semibold text-gray-900">
+                ProcureFlow
+              </h1>
+            </div>
                     <div>
                       <p className="font-medium text-gray-900">Password</p>
                       <p className="text-sm text-gray-500">

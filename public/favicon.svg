@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7E22CE;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="6" fill="url(#grad)"/>
+  <!-- Workflow icon adapted for favicon -->
+  <rect width="8" height="8" x="6" y="6" rx="2" fill="white"/>
+  <path d="M10 14v4a2 2 0 0 0 2 2h4" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <rect width="8" height="8" x="18" y="18" rx="2" fill="white"/>
+</svg>

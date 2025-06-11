@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import ProcureFlowIcon from "@/components/shared/ProcureFlowIcon";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -43,7 +44,11 @@ const SignUp = () => {
           <div className="mb-8">
             <div className="flex items-center space-x-3 mb-6">
               <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                <div className="w-6 h-6 bg-gradient-to-br from-purple-300 to-pink-300 rounded transform rotate-45"></div>
+                <ProcureFlowIcon
+                  variant="outline"
+                  size="md"
+                  className="text-white bg-transparent shadow-none"
+                />
               </div>
               <span className="text-3xl font-bold">ProcureFlow</span>
             </div>
@@ -65,9 +70,7 @@ const SignUp = () => {
           {/* Mobile branding */}
           <div className="lg:hidden text-center mb-8">
             <div className="flex items-center justify-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-                <div className="w-5 h-5 bg-white rounded transform rotate-45"></div>
-              </div>
+              <ProcureFlowIcon size="lg" />
               <span className="text-2xl font-bold text-gray-900">
                 ProcureFlow
               </span>

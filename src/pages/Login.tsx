@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import ProcureFlowIcon from "@/components/shared/ProcureFlowIcon";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,13 +24,8 @@ const Login = () => {
       <div className="max-w-md w-full">
         {/* Logo and Illustration */}
         <div className="text-center mb-8">
-          <div className="mx-auto w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100"></div>
-            <div className="relative">
-              <div className="w-6 h-6 bg-yellow-400 rounded-full absolute -top-1 -left-1"></div>
-              <div className="w-4 h-4 bg-green-400 rounded-full absolute top-2 right-0"></div>
-              <Lock className="h-8 w-8 text-blue-600" />
-            </div>
+          <div className="mx-auto mb-6">
+            <ProcureFlowIcon size="xl" className="mx-auto" />
           </div>
 
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
