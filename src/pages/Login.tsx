@@ -161,6 +161,24 @@ const Login = () => {
               <p className="text-gray-600 text-lg">
                 Sign in to your ProcureFlow account
               </p>
+
+              {/* Demo Credentials Info */}
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800 font-medium mb-2">
+                  Demo Credentials:
+                </p>
+                <div className="text-sm text-blue-700 space-y-1">
+                  <p>
+                    <strong>Email:</strong> demo@procureflow.com
+                  </p>
+                  <p>
+                    <strong>Password:</strong> demo123
+                  </p>
+                  <p className="text-xs text-blue-600 mt-2">
+                    Or use any email/password for demo purposes
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Form */}
