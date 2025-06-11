@@ -1,22 +1,15 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  Package,
   FileText,
   CheckCircle,
   TrendingUp,
   DollarSign,
-  Users,
   ShoppingCart,
-  Calendar,
   ArrowRight,
-  Building2,
-  Settings,
-  User,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import Layout from "@/components/shared/Layout";
 
 const SidebarItem = ({
   icon: Icon,
@@ -397,13 +390,11 @@ const Dashboard = () => {
                       </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </main>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
