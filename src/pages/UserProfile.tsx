@@ -115,19 +115,17 @@ const UserProfile = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Profile Information */}
-          <div className="lg:col-span-1">
-            <Card className="card-shadow">
-              <CardContent className="p-8 text-center">
-                <Avatar className="w-24 h-24 mx-auto mb-6">
-                  <AvatarImage src={user.avatar} />
-                  <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-2xl font-bold">
-                    JS
-                  </AvatarFallback>
-                </Avatar>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  {user.name}
-                </h2>
-                <div className="flex items-center justify-center space-x-2 mb-2">
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" size="sm">
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+            <Avatar>
+              <AvatarImage src={user.avatar} />
+              <AvatarFallback className="bg-indigo-100 text-indigo-600">
+                JS
+              </AvatarFallback>
+            </Avatar>
+          </div>
                   <Mail className="h-4 w-4 text-gray-500" />
                   <span className="text-gray-600">{user.email}</span>
                 </div>
