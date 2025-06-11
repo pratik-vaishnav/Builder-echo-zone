@@ -254,8 +254,25 @@ const Dashboard = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Monthly Spending Trend
               </h3>
-              <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-                <p className="text-gray-500">Chart placeholder</p>
+              <div className="h-64 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg flex flex-col items-center justify-center">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-indigo-600 mb-2">
+                    $125,420
+                  </div>
+                  <div className="text-sm text-gray-600 mb-4">
+                    Total this month
+                  </div>
+                  <div className="flex items-center justify-center space-x-4 text-sm">
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-indigo-600 rounded-full mr-2"></div>
+                      <span>Approved</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-orange-400 rounded-full mr-2"></div>
+                      <span>Pending</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -265,8 +282,53 @@ const Dashboard = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Request Status Overview
               </h3>
-              <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-                <p className="text-gray-500">Chart placeholder</p>
+              <div className="h-64 bg-gradient-to-br from-green-50 to-emerald-100 rounded-lg p-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700">
+                      Approved
+                    </span>
+                    <span className="text-sm font-semibold text-green-600">
+                      68%
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-green-500 h-2 rounded-full"
+                      style={{ width: "68%" }}
+                    ></div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700">
+                      Pending
+                    </span>
+                    <span className="text-sm font-semibold text-orange-600">
+                      22%
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-orange-400 h-2 rounded-full"
+                      style={{ width: "22%" }}
+                    ></div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700">
+                      Rejected
+                    </span>
+                    <span className="text-sm font-semibold text-red-600">
+                      10%
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-red-500 h-2 rounded-full"
+                      style={{ width: "10%" }}
+                    ></div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
