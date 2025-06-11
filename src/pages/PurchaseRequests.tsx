@@ -1,0 +1,442 @@
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Search,
+  Filter,
+  Plus,
+  Package,
+  FileText,
+  CheckCircle,
+  Clock,
+  XCircle,
+  MoreHorizontal,
+  Download,
+  ChevronLeft,
+  ChevronRight,
+  Settings,
+  User,
+  Building2,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
+
+// Mock data
+const requestsData = [
+  {
+    id: "1",
+    avatar: "AJ",
+    requester: "Alice Johnson",
+    date: "2024-03-15",
+    amount: "$1200.00",
+    department: "Marketing",
+    priority: "High",
+    description:
+      "Request for new office chairs for the marketing department to improve ergonomics.",
+    status: "Approved",
+    statusColor: "bg-green-100 text-green-800",
+    priorityColor: "bg-red-100 text-red-800",
+  },
+  {
+    id: "2",
+    avatar: "BS",
+    requester: "Bob Smith",
+    date: "2024-03-18",
+    amount: "$850.00",
+    department: "Design",
+    priority: "High",
+    description:
+      "Purchase request for subscription renewal of Adobe Creative Cloud for design team.",
+    status: "Pending",
+    statusColor: "bg-yellow-100 text-yellow-800",
+    priorityColor: "bg-red-100 text-red-800",
+  },
+  {
+    id: "3",
+    avatar: "CB",
+    requester: "Charlie Brown",
+    date: "2024-03-20",
+    amount: "$15000.00",
+    department: "Engineering",
+    priority: "High",
+    description:
+      "Request for new server hardware for database expansion project.",
+    status: "In Review",
+    statusColor: "bg-blue-100 text-blue-800",
+    priorityColor: "bg-red-100 text-red-800",
+  },
+  {
+    id: "4",
+    avatar: "DP",
+    requester: "Diana Prince",
+    date: "2024-03-21",
+    amount: "$300.00",
+    department: "Operations",
+    priority: "Medium",
+    description:
+      "Office supplies replenishment: paper, pens, toner cartridges.",
+    status: "Approved",
+    statusColor: "bg-green-100 text-green-800",
+    priorityColor: "bg-orange-100 text-orange-800",
+  },
+  {
+    id: "5",
+    avatar: "EA",
+    requester: "Eve Adams",
+    date: "2024-03-22",
+    amount: "$2500.00",
+    department: "IT",
+    priority: "High",
+    description:
+      "Request for new software licenses for project management tool (Jira).",
+    status: "Rejected",
+    statusColor: "bg-red-100 text-red-800",
+    priorityColor: "bg-red-100 text-red-800",
+  },
+  {
+    id: "6",
+    avatar: "FG",
+    requester: "Frank Green",
+    date: "2024-03-25",
+    amount: "$1800.00",
+    department: "Sales",
+    priority: "Medium",
+    description: "Travel expenses for sales conference in New York.",
+    status: "Pending",
+    statusColor: "bg-yellow-100 text-yellow-800",
+    priorityColor: "bg-orange-100 text-orange-800",
+  },
+  {
+    id: "7",
+    avatar: "GH",
+    requester: "Grace Hall",
+    date: "2024-03-26",
+    amount: "$500.00",
+    department: "HR",
+    priority: "Low",
+    description: "New coffee machine for break room.",
+    status: "Approved",
+    statusColor: "bg-green-100 text-green-800",
+    priorityColor: "bg-blue-100 text-blue-800",
+  },
+  {
+    id: "8",
+    avatar: "HW",
+    requester: "Harry White",
+    date: "2024-03-28",
+    amount: "$7500.00",
+    department: "Finance",
+    priority: "High",
+    description:
+      "Request for external consulting services for Q2 financial audit.",
+    status: "In Review",
+    statusColor: "bg-blue-100 text-blue-800",
+    priorityColor: "bg-red-100 text-red-800",
+  },
+];
+
+const SidebarItem = ({
+  icon: Icon,
+  label,
+  isActive = false,
+  to,
+}: {
+  icon: any;
+  label: string;
+  isActive?: boolean;
+  to?: string;
+}) => {
+  const content = (
+    <div
+      className={cn(
+        "w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg transition-colors",
+        isActive
+          ? "bg-indigo-600 text-white"
+          : "text-gray-700 hover:bg-gray-100",
+      )}
+    >
+      <Icon className="h-5 w-5" />
+      <span className="font-medium">{label}</span>
+    </div>
+  );
+
+  return to ? <Link to={to}>{content}</Link> : <button>{content}</button>;
+};
+
+const PurchaseRequests = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                <Package className="h-5 w-5 text-white" />
+              </div>
+              <h1 className="text-xl font-semibold text-gray-900">
+                Purchase Manager
+              </h1>
+            </div>
+            <nav className="hidden md:flex space-x-8">
+              <span className="text-indigo-600 font-medium border-b-2 border-indigo-600 pb-2">
+                Purchase Requests
+              </span>
+              <Link
+                to="/approve-requests"
+                className="text-gray-500 hover:text-gray-700"
+              >
+                Approve Requests
+              </Link>
+              <Link
+                to="/purchase-orders"
+                className="text-gray-500 hover:text-gray-700"
+              >
+                Purchase Orders
+              </Link>
+            </nav>
+          </div>
+          <Avatar>
+            <AvatarImage src="/placeholder.svg" />
+            <AvatarFallback className="bg-indigo-100 text-indigo-600">
+              AB
+            </AvatarFallback>
+          </Avatar>
+        </div>
+      </header>
+
+      <div className="flex">
+        {/* Sidebar */}
+        <aside className="w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-73px)]">
+          <div className="p-4 space-y-2">
+            <SidebarItem
+              icon={FileText}
+              label="Purchase Requests"
+              isActive={true}
+            />
+            <SidebarItem
+              icon={CheckCircle}
+              label="Approve Requests"
+              to="/approve-requests"
+            />
+            <SidebarItem
+              icon={Package}
+              label="Purchase Orders"
+              to="/purchase-orders"
+            />
+          </div>
+          <div className="absolute bottom-4 left-4 space-y-2">
+            <SidebarItem icon={User} label="User Profile" to="/profile" />
+            <SidebarItem icon={Settings} label="Settings" />
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 p-6">
+          <div className="max-w-7xl mx-auto">
+            {/* Header with icon and title */}
+            <div className="flex items-center space-x-4 mb-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                <FileText className="h-8 w-8 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Purchase Requests
+                </h2>
+              </div>
+              <div className="flex-1 flex justify-end space-x-3">
+                <Button variant="outline">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export Data
+                </Button>
+                <Link to="/submit-request">
+                  <Button className="bg-indigo-600 hover:bg-indigo-700">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create New Request
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Filters */}
+            <Card className="mb-6">
+              <CardContent className="p-6">
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex-1 min-w-80">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        placeholder="Search requests..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <Select defaultValue="all-statuses">
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="All Statuses" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all-statuses">All Statuses</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                      <SelectItem value="in-review">In Review</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select defaultValue="all-departments">
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="All Departments" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all-departments">
+                        All Departments
+                      </SelectItem>
+                      <SelectItem value="marketing">Marketing</SelectItem>
+                      <SelectItem value="design">Design</SelectItem>
+                      <SelectItem value="engineering">Engineering</SelectItem>
+                      <SelectItem value="operations">Operations</SelectItem>
+                      <SelectItem value="it">IT</SelectItem>
+                      <SelectItem value="sales">Sales</SelectItem>
+                      <SelectItem value="hr">HR</SelectItem>
+                      <SelectItem value="finance">Finance</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select defaultValue="all-priorities">
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="All Priorities" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all-priorities">
+                        All Priorities
+                      </SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="low">Low</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button variant="outline">Clear Filters</Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Requests Table */}
+            <Card>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Text</TableHead>
+                    <TableHead>Requester</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Department</TableHead>
+                    <TableHead>Priority</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Text</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {requestsData.map((request) => (
+                    <TableRow key={request.id}>
+                      <TableCell>
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-indigo-100 text-indigo-600 text-xs">
+                            {request.avatar}
+                          </AvatarFallback>
+                        </Avatar>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium text-gray-900">
+                            {request.requester}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-gray-600">
+                        {request.date}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {request.amount}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{request.department}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          className={cn("border-0", request.priorityColor)}
+                        >
+                          {request.priority}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="max-w-xs">
+                        <p className="text-sm text-gray-600 truncate">
+                          {request.description}
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={cn("border-0", request.statusColor)}>
+                          {request.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {/* Pagination */}
+              <div className="flex items-center justify-between p-6 border-t border-gray-200">
+                <div className="flex items-center space-x-2">
+                  <Button variant="outline" size="sm">
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="bg-indigo-600 text-white"
+                  >
+                    1
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    2
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default PurchaseRequests;
