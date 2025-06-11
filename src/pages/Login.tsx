@@ -18,8 +18,8 @@ import ProcureFlowIcon from "@/components/shared/ProcureFlowIcon";
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: "demo@procureflow.com",
+    password: "demo123",
   });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
