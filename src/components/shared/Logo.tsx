@@ -1,6 +1,6 @@
-import { Workflow } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import ProcureFlowIcon from "./ProcureFlowIcon";
 
 interface LogoProps {
   className?: string;
@@ -33,14 +33,10 @@ const Logo = ({ className, showText = true, size = "md" }: LogoProps) => {
       className={cn("flex items-center space-x-3 group", className)}
     >
       {/* Logo Icon */}
-      <div
-        className={cn(
-          "bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105",
-          sizeClasses[size].container,
-        )}
-      >
-        <Workflow className={cn("text-white", sizeClasses[size].icon)} />
-      </div>
+      <ProcureFlowIcon
+        size={size === "sm" ? "sm" : size === "md" ? "md" : "lg"}
+        className="group-hover:shadow-xl transition-all duration-300 group-hover:scale-105"
+      />
 
       {/* Logo Text */}
       {showText && (
