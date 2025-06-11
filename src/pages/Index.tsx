@@ -3,7 +3,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Table,
   TableBody,
@@ -22,7 +21,6 @@ import {
   XCircle,
   FileText,
   Mail,
-  User,
   Phone,
   Building2,
   Package,
@@ -33,6 +31,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import Layout from "@/components/shared/Layout";
 
 // Mock data
 const statsData = [
@@ -171,29 +170,6 @@ const selectedOrderDetails = {
   ],
 };
 
-const SidebarItem = ({
-  icon: Icon,
-  label,
-  isActive = false,
-  onClick,
-}: {
-  icon: any;
-  label: string;
-  isActive?: boolean;
-  onClick?: () => void;
-}) => (
-  <button
-    onClick={onClick}
-    className={cn(
-      "w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg transition-colors",
-      isActive ? "bg-indigo-600 text-white" : "text-gray-700 hover:bg-gray-100",
-    )}
-  >
-    <Icon className="h-5 w-5" />
-    <span className="font-medium">{label}</span>
-  </button>
-);
-
 const StatCard = ({
   title,
   value,
@@ -209,7 +185,7 @@ const StatCard = ({
   color: string;
   bgColor: string;
 }) => (
-  <Card>
+  <Card className="card-shadow">
     <CardContent className="p-6">
       <div className="flex items-center justify-between">
         <div>
@@ -217,7 +193,7 @@ const StatCard = ({
           <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
           <p className="text-sm text-gray-500 mt-1">{subtitle}</p>
         </div>
-        <div className={cn("p-3 rounded-lg", bgColor)}>
+        <div className={cn("p-3 rounded-xl", bgColor)}>
           <Icon className={cn("h-6 w-6", color)} />
         </div>
       </div>
@@ -227,83 +203,10 @@ const StatCard = ({
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                <Package className="h-5 w-5 text-white" />
-              </div>
-              <h1 className="text-xl font-semibold text-gray-900">
-                Purchase Manager
-              </h1>
-            </div>
-            <nav className="hidden md:flex space-x-8">
-              <Link
-                to="/dashboard"
-                className="text-gray-500 hover:text-gray-700"
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/purchase-requests"
-                className="text-gray-500 hover:text-gray-700"
-              >
-                Purchase Requests
-              </Link>
-              <Link
-                to="/approve-requests"
-                className="text-gray-500 hover:text-gray-700"
-              >
-                Approve Requests
-              </Link>
-              <span className="text-indigo-600 font-medium border-b-2 border-indigo-600 pb-2">
-                Purchase Orders
-              </span>
-            </nav>
-          </div>
-          <Link to="/profile">
-            <Avatar>
-              <AvatarImage src="/placeholder.svg" />
-              <AvatarFallback className="bg-indigo-100 text-indigo-600">
-                JD
-              </AvatarFallback>
-            </Avatar>
-          </Link>
-        </div>
-      </header>
-
+    <Layout currentPage="purchase-orders">
       <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-73px)]">
-          <div className="p-4 space-y-2">
-            <SidebarItem icon={Building2} label="Dashboard" to="/dashboard" />
-            <SidebarItem
-              icon={FileText}
-              label="Purchase Requests"
-              to="/purchase-requests"
-            />
-            <SidebarItem
-              icon={CheckCircle}
-              label="Approve Requests"
-              to="/approve-requests"
-            />
-            <SidebarItem
-              icon={ShoppingCart}
-              label="Purchase Orders"
-              isActive={true}
-            />
-          </div>
-          <div className="absolute bottom-4 left-4">
-            <SidebarItem icon={User} label="User Profile" to="/profile" />
-          </div>
-        </aside>
-
         {/* Main Content */}
         <main className="flex-1 p-6">
           <div className="max-w-6xl mx-auto">
@@ -315,10 +218,10 @@ const Index = () => {
             </div>
 
             {/* Orders Table */}
-            <Card>
+            <Card className="card-shadow">
               <div className="p-6 border-b border-gray-200">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-900">
+                  <h2 className="text-xl font-semibold text-gray-900">
                     All Purchase Orders
                   </h2>
                   <div className="flex items-center space-x-4">
@@ -336,7 +239,7 @@ const Index = () => {
                       Filter
                     </Button>
                     <Link to="/submit-request">
-                      <Button className="bg-indigo-600 hover:bg-indigo-700">
+                      <Button className="btn-gradient">
                         <Plus className="h-4 w-4 mr-2" />
                         New Order
                       </Button>
@@ -402,7 +305,7 @@ const Index = () => {
         </main>
 
         {/* Right Sidebar - Order Details */}
-        <aside className="w-80 bg-white border-l border-gray-200 min-h-[calc(100vh-73px)]">
+        <aside className="w-80 bg-white border-l border-gray-200 shadow-sm">
           <div className="p-6">
             <div className="mb-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -509,7 +412,7 @@ const Index = () => {
 
             {/* Action Buttons */}
             <div className="space-y-3">
-              <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
+              <Button className="w-full btn-gradient">
                 <Printer className="h-4 w-4 mr-2" />
                 Print Order
               </Button>
@@ -521,7 +424,7 @@ const Index = () => {
           </div>
         </aside>
       </div>
-    </div>
+    </Layout>
   );
 };
 
