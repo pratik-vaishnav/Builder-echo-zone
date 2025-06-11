@@ -32,6 +32,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
 
 // Mock data
 const statsData = [
@@ -243,15 +244,21 @@ const Index = () => {
               </h1>
             </div>
             <nav className="hidden md:flex space-x-8">
-              <button className="text-gray-500 hover:text-gray-700">
+              <Link
+                to="/purchase-requests"
+                className="text-gray-500 hover:text-gray-700"
+              >
                 Purchase Requests
-              </button>
-              <button className="text-gray-500 hover:text-gray-700">
+              </Link>
+              <Link
+                to="/approve-requests"
+                className="text-gray-500 hover:text-gray-700"
+              >
                 Approve Requests
-              </button>
-              <button className="text-indigo-600 font-medium border-b-2 border-indigo-600 pb-2">
+              </Link>
+              <span className="text-indigo-600 font-medium border-b-2 border-indigo-600 pb-2">
                 Purchase Orders
-              </button>
+              </span>
             </nav>
           </div>
           <Avatar>
