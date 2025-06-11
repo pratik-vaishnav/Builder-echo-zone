@@ -410,7 +410,13 @@ const PurchaseRequests = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="sm">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            alert("More options menu would open here")
+                          }
+                        >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </TableCell>

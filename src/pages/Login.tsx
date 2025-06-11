@@ -15,7 +15,7 @@ const Login = () => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     // Simulate login - in real app, you'd call an API
-    navigate("/");
+    navigate("/dashboard");
   };
 
   return (

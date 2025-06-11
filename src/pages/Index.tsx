@@ -372,7 +372,11 @@ const Index = () => {
                         {order.amount}
                       </TableCell>
                       <TableCell>
-                        <Button variant="outline" size="sm">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => alert("Order details would open here")}
+                        >
                           View Details
                         </Button>
                       </TableCell>

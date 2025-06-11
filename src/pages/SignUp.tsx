@@ -17,6 +17,7 @@ const SignUp = () => {
   const handleSignUp = (e: React.FormEvent) => {
     e.preventDefault();
     // Simulate signup - in real app, you'd call an API
+    alert("Account created successfully! Please login.");
     navigate("/login");
   };
 
