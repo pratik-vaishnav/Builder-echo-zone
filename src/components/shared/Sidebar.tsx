@@ -144,7 +144,7 @@ const Sidebar = ({ className, currentPage }: SidebarProps) => {
   return (
     <aside
       className={cn(
-        "w-64 bg-white border-r border-gray-200 shadow-sm flex flex-col",
+        "w-64 bg-white/80 backdrop-blur-lg border-r border-gray-200/50 shadow-lg flex flex-col",
         className,
       )}
     >
