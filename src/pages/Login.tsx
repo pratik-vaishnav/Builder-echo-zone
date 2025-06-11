@@ -32,10 +32,12 @@ const Login = () => {
             </div>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">
             Welcome Back
           </h2>
-          <p className="text-gray-600">Log in to your UserConnect account</p>
+          <p className="text-gray-600">
+            Log in to your Purchase Manager account
+          </p>
         </div>
 
         {/* Login Form */}
