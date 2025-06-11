@@ -283,7 +283,7 @@ const Index = () => {
             />
           </div>
           <div className="absolute bottom-4 left-4">
-            <SidebarItem icon={User} label="User Profile" />
+            <SidebarItem icon={User} label="User Profile" to="/profile" />
           </div>
         </aside>
 
