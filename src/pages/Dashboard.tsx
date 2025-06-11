@@ -84,10 +84,11 @@ const Dashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome back, John!
+            Welcome to ProcureFlow, John!
           </h1>
           <p className="text-gray-600 text-lg">
-            Here's what's happening with your ProcureFlow dashboard today.
+            Your smart procurement workflow dashboard - track requests,
+            approvals, and orders in real-time.
           </p>
         </div>
 

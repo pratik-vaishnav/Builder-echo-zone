@@ -163,7 +163,7 @@ const SignUp = () => {
 
             <div className="text-center">
               <p className="text-sm text-gray-600 mb-6">
-                By clicking "Sign Up", you agree to our{" "}
+                By joining ProcureFlow, you agree to our{" "}
                 <Link
                   to="/terms"
                   className="text-indigo-600 hover:text-indigo-500"

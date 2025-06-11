@@ -174,7 +174,7 @@ const Login = () => {
             {/* Sign up link */}
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
-                By clicking Login, you agree to our{" "}
+                By accessing ProcureFlow, you agree to our{" "}
                 <Link
                   to="/terms"
                   className="text-indigo-600 hover:text-indigo-500"
