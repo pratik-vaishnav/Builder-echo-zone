@@ -28,6 +28,8 @@ import {
   Printer,
   ChevronLeft,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
@@ -203,6 +205,24 @@ const StatCard = ({
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+
+  // Filter and paginate data
+  const filteredOrders = ordersData.filter(
+    (order) =>
+      order.orderNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.supplier.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentOrders = filteredOrders.slice(startIndex, endIndex);
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
 
   return (
     <Layout currentPage="purchase-orders">
@@ -259,7 +279,7 @@ const Index = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {ordersData.map((order) => (
+                  {currentOrders.map((order) => (
                     <TableRow key={order.orderNo}>
                       <TableCell className="font-medium">
                         {order.orderNo}
@@ -288,17 +308,84 @@ const Index = () => {
                 </TableBody>
               </Table>
               <div className="flex items-center justify-between p-6 border-t border-gray-200">
-                <div className="text-sm text-gray-500">Page 1 of 2</div>
-                <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    <ChevronLeft className="h-4 w-4" />
-                    Previous
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    Next
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
+                <div className="text-sm text-gray-500">
+                  Showing {Math.min(startIndex + 1, filteredOrders.length)} to{" "}
+                  {Math.min(endIndex, filteredOrders.length)} of{" "}
+                  {filteredOrders.length} orders
+                  {searchTerm && ` (filtered from ${ordersData.length} total)`}
                 </div>
+                {totalPages > 1 && (
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => goToPage(1)}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronsLeft className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+
+                    {/* Page Numbers */}
+                    <div className="flex space-x-1">
+                      {Array.from(
+                        { length: Math.min(3, totalPages) },
+                        (_, i) => {
+                          let pageNum;
+                          if (totalPages <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 2) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= totalPages - 1) {
+                            pageNum = totalPages - 2 + i;
+                          } else {
+                            pageNum = currentPage - 1 + i;
+                          }
+
+                          return (
+                            <Button
+                              key={pageNum}
+                              variant="outline"
+                              size="sm"
+                              onClick={() => goToPage(pageNum)}
+                              className={
+                                currentPage === pageNum
+                                  ? "bg-indigo-600 text-white border-indigo-600"
+                                  : ""
+                              }
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        },
+                      )}
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => goToPage(totalPages)}
+                      disabled={currentPage === totalPages}
+                    >
+                      <ChevronsRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </Card>
           </div>
