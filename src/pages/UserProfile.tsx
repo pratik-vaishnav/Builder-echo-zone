@@ -17,9 +17,11 @@ import {
   Linkedin,
   Github,
   Music,
+  ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import Layout from "@/components/shared/Layout";
 
 const connectedAccounts = [
   {
@@ -83,70 +85,59 @@ const UserProfile = () => {
   const [user] = useState({
     name: "Jessica Smith",
     email: "jessica.smith@example.com",
-    accountType: "Personal User Account",
+    accountType: "Procurement Manager",
     avatar: "/placeholder.svg",
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-                <div className="w-4 h-4 bg-white rounded transform rotate-45"></div>
-              </div>
-              <h1 className="text-xl font-semibold text-gray-900">
-                ProcureFlow
-              </h1>
-            </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm">
-              <ExternalLink className="h-4 w-4" />
-            </Button>
-            <Avatar>
-              <AvatarImage src={user.avatar} />
-              <AvatarFallback className="bg-indigo-100 text-indigo-600">
-                JS
-              </AvatarFallback>
-            </Avatar>
-          </div>
+    <Layout currentPage="user-profile" showSearch={false}>
+      <div className="page-container">
+        {/* Back to Dashboard Link */}
+        <div className="mb-6">
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center text-indigo-600 hover:text-indigo-700 font-medium text-sm"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to ProcureFlow Dashboard
+          </Link>
         </div>
-      </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">User Profile</h2>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            User Profile
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Manage your ProcureFlow account settings and preferences
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Profile Information */}
           <div className="lg:col-span-1">
-            <Card>
+            <Card className="card-shadow">
               <CardContent className="p-8 text-center">
                 <Avatar className="w-24 h-24 mx-auto mb-6">
                   <AvatarImage src={user.avatar} />
-                  <AvatarFallback className="bg-indigo-100 text-indigo-600 text-2xl">
+                  <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-2xl font-bold">
                     JS
                   </AvatarFallback>
                 </Avatar>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
                   {user.name}
-                </h3>
+                </h2>
                 <div className="flex items-center justify-center space-x-2 mb-2">
                   <Mail className="h-4 w-4 text-gray-500" />
                   <span className="text-gray-600">{user.email}</span>
                 </div>
                 <div className="flex items-center justify-center space-x-2 mb-6">
                   <User className="h-4 w-4 text-gray-500" />
-                  <span className="text-gray-600">{user.accountType}</span>
+                  <Badge className="bg-indigo-100 text-indigo-800 border-0">
+                    {user.accountType}
+                  </Badge>
                 </div>
                 <div className="space-y-3">
-                  <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
-                    Edit Profile
-                  </Button>
+                  <Button className="w-full btn-gradient">Edit Profile</Button>
                   <Button variant="outline" className="w-full">
                     Change Password
                   </Button>
@@ -155,10 +146,12 @@ const UserProfile = () => {
             </Card>
 
             {/* Security Settings */}
-            <Card className="mt-6">
+            <Card className="mt-6 card-shadow">
               <CardContent className="p-6">
                 <div className="flex items-center space-x-3 mb-6">
-                  <Shield className="h-5 w-5 text-red-600" />
+                  <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center">
+                    <Shield className="h-4 w-4 text-red-600" />
+                  </div>
                   <h3 className="text-lg font-semibold text-gray-900">
                     Security Settings
                   </h3>
@@ -195,12 +188,46 @@ const UserProfile = () => {
 
           {/* Right Column */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Connected Accounts */}
-            <Card>
+            {/* Quick Access to ProcureFlow */}
+            <Card className="card-shadow">
               <CardContent className="p-6">
                 <div className="flex items-center space-x-3 mb-6">
-                  <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
-                    <ExternalLink className="h-3 w-3 text-blue-600" />
+                  <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                    <ExternalLink className="h-4 w-4 text-indigo-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Quick Access
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Link to="/dashboard">
+                    <Button variant="outline" className="w-full h-20 flex-col">
+                      <div className="text-lg mb-1">📊</div>
+                      <span className="text-sm">Dashboard</span>
+                    </Button>
+                  </Link>
+                  <Link to="/submit-request">
+                    <Button variant="outline" className="w-full h-20 flex-col">
+                      <div className="text-lg mb-1">📝</div>
+                      <span className="text-sm">New Request</span>
+                    </Button>
+                  </Link>
+                  <Link to="/approve-requests">
+                    <Button variant="outline" className="w-full h-20 flex-col">
+                      <div className="text-lg mb-1">✅</div>
+                      <span className="text-sm">Approvals</span>
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Connected Accounts */}
+            <Card className="card-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <ExternalLink className="h-4 w-4 text-blue-600" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900">
                     Connected Accounts
@@ -246,12 +273,12 @@ const UserProfile = () => {
             </Card>
 
             {/* Recent Activity */}
-            <Card>
+            <Card className="card-shadow">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-3">
-                    <div className="w-6 h-6 bg-gray-100 rounded flex items-center justify-center">
-                      <Eye className="h-3 w-3 text-gray-600" />
+                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <Eye className="h-4 w-4 text-gray-600" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900">
                       Recent Activity
@@ -292,12 +319,34 @@ const UserProfile = () => {
 
         {/* Footer */}
         <div className="mt-12 pt-8 border-t border-gray-200">
-          <p className="text-sm text-gray-500 text-center">
-            © 2024 ProcureFlow. All rights reserved.
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-500">
+              © 2024 ProcureFlow. All rights reserved.
+            </p>
+            <div className="flex space-x-6">
+              <Link
+                to="/terms"
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
+                Terms
+              </Link>
+              <Link
+                to="/privacy"
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
+                Privacy
+              </Link>
+              <Link
+                to="/support"
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
+                Support
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

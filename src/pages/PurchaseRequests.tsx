@@ -28,127 +28,139 @@ import {
   Download,
   ChevronLeft,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import Layout from "@/components/shared/Layout";
 
-// Mock data
-const requestsData = [
-  {
-    id: "1",
-    avatar: "AJ",
-    requester: "Alice Johnson",
-    date: "2024-03-15",
-    amount: "$1200.00",
-    department: "Marketing",
-    priority: "High",
-    description:
-      "Request for new office chairs for the marketing department to improve ergonomics.",
-    status: "Approved",
-    statusColor: "bg-green-100 text-green-800",
-    priorityColor: "bg-red-100 text-red-800",
-  },
-  {
-    id: "2",
-    avatar: "BS",
-    requester: "Bob Smith",
-    date: "2024-03-18",
-    amount: "$850.00",
-    department: "Design",
-    priority: "High",
-    description:
-      "Purchase request for subscription renewal of Adobe Creative Cloud for design team.",
-    status: "Pending",
-    statusColor: "bg-yellow-100 text-yellow-800",
-    priorityColor: "bg-red-100 text-red-800",
-  },
-  {
-    id: "3",
-    avatar: "CB",
-    requester: "Charlie Brown",
-    date: "2024-03-20",
-    amount: "$15000.00",
-    department: "Engineering",
-    priority: "High",
-    description:
-      "Request for new server hardware for database expansion project.",
-    status: "In Review",
-    statusColor: "bg-blue-100 text-blue-800",
-    priorityColor: "bg-red-100 text-red-800",
-  },
-  {
-    id: "4",
-    avatar: "DP",
-    requester: "Diana Prince",
-    date: "2024-03-21",
-    amount: "$300.00",
-    department: "Operations",
-    priority: "Medium",
-    description:
-      "Office supplies replenishment: paper, pens, toner cartridges.",
-    status: "Approved",
-    statusColor: "bg-green-100 text-green-800",
-    priorityColor: "bg-orange-100 text-orange-800",
-  },
-  {
-    id: "5",
-    avatar: "EA",
-    requester: "Eve Adams",
-    date: "2024-03-22",
-    amount: "$2500.00",
-    department: "IT",
-    priority: "High",
-    description:
-      "Request for new software licenses for project management tool (Jira).",
-    status: "Rejected",
-    statusColor: "bg-red-100 text-red-800",
-    priorityColor: "bg-red-100 text-red-800",
-  },
-  {
-    id: "6",
-    avatar: "FG",
-    requester: "Frank Green",
-    date: "2024-03-25",
-    amount: "$1800.00",
-    department: "Sales",
-    priority: "Medium",
-    description: "Travel expenses for sales conference in New York.",
-    status: "Pending",
-    statusColor: "bg-yellow-100 text-yellow-800",
-    priorityColor: "bg-orange-100 text-orange-800",
-  },
-  {
-    id: "7",
-    avatar: "GH",
-    requester: "Grace Hall",
-    date: "2024-03-26",
-    amount: "$500.00",
-    department: "HR",
-    priority: "Low",
-    description: "New coffee machine for break room.",
-    status: "Approved",
-    statusColor: "bg-green-100 text-green-800",
-    priorityColor: "bg-blue-100 text-blue-800",
-  },
-  {
-    id: "8",
-    avatar: "HW",
-    requester: "Harry White",
-    date: "2024-03-28",
-    amount: "$7500.00",
-    department: "Finance",
-    priority: "High",
-    description:
-      "Request for external consulting services for Q2 financial audit.",
-    status: "In Review",
-    statusColor: "bg-blue-100 text-blue-800",
-    priorityColor: "bg-red-100 text-red-800",
-  },
-];
+// Expanded mock data for pagination
+const generateRequestsData = () => {
+  const departments = [
+    "Marketing",
+    "Design",
+    "Engineering",
+    "Operations",
+    "IT",
+    "Sales",
+    "HR",
+    "Finance",
+  ];
+  const priorities = ["High", "Medium", "Low"];
+  const statuses = ["Approved", "Pending", "In Review", "Rejected"];
+  const names = [
+    "Alice Johnson",
+    "Bob Smith",
+    "Charlie Brown",
+    "Diana Prince",
+    "Eve Adams",
+    "Frank Green",
+    "Grace Hall",
+    "Harry White",
+    "Ivy Queen",
+    "Jack Black",
+    "Kate Wilson",
+    "Liam Davis",
+    "Mia Taylor",
+    "Noah Brown",
+    "Olivia Jones",
+    "Paul Miller",
+    "Quinn Garcia",
+    "Ruby Lee",
+    "Sam Wilson",
+    "Tina Moore",
+  ];
+
+  const requests = [];
+  for (let i = 1; i <= 47; i++) {
+    const requester = names[Math.floor(Math.random() * names.length)];
+    const department =
+      departments[Math.floor(Math.random() * departments.length)];
+    const priority = priorities[Math.floor(Math.random() * priorities.length)];
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+
+    requests.push({
+      id: i.toString(),
+      avatar: requester
+        .split(" ")
+        .map((n) => n[0])
+        .join(""),
+      requester,
+      date: new Date(2024, 2, Math.floor(Math.random() * 28) + 1)
+        .toISOString()
+        .split("T")[0],
+      amount: `$${(Math.random() * 15000 + 100).toFixed(2)}`,
+      department,
+      priority,
+      description: `Request for ${department.toLowerCase()} department needs - priority ${priority.toLowerCase()}`,
+      status,
+      statusColor:
+        status === "Approved"
+          ? "bg-green-100 text-green-800"
+          : status === "Pending"
+            ? "bg-yellow-100 text-yellow-800"
+            : status === "In Review"
+              ? "bg-blue-100 text-blue-800"
+              : "bg-red-100 text-red-800",
+      priorityColor:
+        priority === "High"
+          ? "bg-red-100 text-red-800"
+          : priority === "Medium"
+            ? "bg-orange-100 text-orange-800"
+            : "bg-blue-100 text-blue-800",
+    });
+  }
+  return requests;
+};
 
 const PurchaseRequests = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all-statuses");
+  const [departmentFilter, setDepartmentFilter] = useState("all-departments");
+  const [priorityFilter, setPriorityFilter] = useState("all-priorities");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+
+  const allRequests = generateRequestsData();
+
+  // Filter data
+  const filteredRequests = allRequests.filter((request) => {
+    const matchesSearch =
+      request.requester.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      request.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all-statuses" ||
+      request.status.toLowerCase().replace(" ", "-") === statusFilter;
+    const matchesDepartment =
+      departmentFilter === "all-departments" ||
+      request.department.toLowerCase() === departmentFilter;
+    const matchesPriority =
+      priorityFilter === "all-priorities" ||
+      request.priority.toLowerCase() === priorityFilter;
+
+    return (
+      matchesSearch && matchesStatus && matchesDepartment && matchesPriority
+    );
+  });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentRequests = filteredRequests.slice(startIndex, endIndex);
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("all-statuses");
+    setDepartmentFilter("all-departments");
+    setPriorityFilter("all-priorities");
+    setCurrentPage(1);
+  };
 
   return (
     <Layout currentPage="purchase-requests">
@@ -163,7 +175,8 @@ const PurchaseRequests = () => {
               Purchase Requests
             </h1>
             <p className="text-gray-600 mt-1">
-              Manage and track all requests in ProcureFlow
+              Manage and track all requests in ProcureFlow (
+              {filteredRequests.length} total)
             </p>
           </div>
           <div className="flex-1 flex justify-end space-x-3">
@@ -195,7 +208,7 @@ const PurchaseRequests = () => {
                   />
                 </div>
               </div>
-              <Select defaultValue="all-statuses">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
@@ -207,7 +220,10 @@ const PurchaseRequests = () => {
                   <SelectItem value="in-review">In Review</SelectItem>
                 </SelectContent>
               </Select>
-              <Select defaultValue="all-departments">
+              <Select
+                value={departmentFilter}
+                onValueChange={setDepartmentFilter}
+              >
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="All Departments" />
                 </SelectTrigger>
@@ -225,7 +241,7 @@ const PurchaseRequests = () => {
                   <SelectItem value="finance">Finance</SelectItem>
                 </SelectContent>
               </Select>
-              <Select defaultValue="all-priorities">
+              <Select value={priorityFilter} onValueChange={setPriorityFilter}>
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="All Priorities" />
                 </SelectTrigger>
@@ -236,104 +252,187 @@ const PurchaseRequests = () => {
                   <SelectItem value="low">Low</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline">Clear Filters</Button>
+              <Button variant="outline" onClick={clearFilters}>
+                Clear Filters
+              </Button>
             </div>
           </CardContent>
         </Card>
 
         {/* Requests Table */}
         <Card className="card-shadow">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Requester</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Department</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {requestsData.map((request) => (
-                <TableRow key={request.id}>
-                  <TableCell>
-                    <div className="flex items-center space-x-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-indigo-100 text-indigo-600 text-xs font-semibold">
-                          {request.avatar}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="font-medium text-gray-900">
-                        {request.requester}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-gray-600">
-                    {request.date}
-                  </TableCell>
-                  <TableCell className="font-semibold">
-                    {request.amount}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="bg-gray-50">
-                      {request.department}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={cn("border-0", request.priorityColor)}>
-                      {request.priority}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="max-w-xs">
-                    <p className="text-sm text-gray-600 truncate">
-                      {request.description}
-                    </p>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={cn("border-0", request.statusColor)}>
-                      {request.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => alert("More options menu would open here")}
-                    >
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[200px]">Requester</TableHead>
+                  <TableHead className="w-[120px]">Date</TableHead>
+                  <TableHead className="w-[120px]">Amount</TableHead>
+                  <TableHead className="w-[140px]">Department</TableHead>
+                  <TableHead className="w-[100px]">Priority</TableHead>
+                  <TableHead className="min-w-[300px]">Description</TableHead>
+                  <TableHead className="w-[120px]">Status</TableHead>
+                  <TableHead className="w-[80px]">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {currentRequests.length > 0 ? (
+                  currentRequests.map((request) => (
+                    <TableRow key={request.id} className="hover:bg-gray-50">
+                      <TableCell>
+                        <div className="flex items-center space-x-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback className="bg-indigo-100 text-indigo-600 text-xs font-semibold">
+                              {request.avatar}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="font-medium text-gray-900">
+                            {request.requester}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-gray-600">
+                        {request.date}
+                      </TableCell>
+                      <TableCell className="font-semibold">
+                        {request.amount}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="bg-gray-50">
+                          {request.department}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          className={cn("border-0", request.priorityColor)}
+                        >
+                          {request.priority}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="max-w-xs">
+                        <p className="text-sm text-gray-600 truncate">
+                          {request.description}
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={cn("border-0", request.statusColor)}>
+                          {request.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            alert(`Action for request ${request.id}`)
+                          }
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center py-8">
+                      <div className="text-gray-500">
+                        <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p>No requests found matching your filters</p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
 
-          {/* Pagination */}
+          {/* Enhanced Pagination */}
           <div className="flex items-center justify-between p-6 border-t border-gray-200">
-            <div className="text-sm text-gray-500">
-              Showing 1-{requestsData.length} of {requestsData.length} requests
+            <div className="flex items-center space-x-2 text-sm text-gray-500">
+              <span>
+                Showing {Math.min(startIndex + 1, filteredRequests.length)} to{" "}
+                {Math.min(endIndex, filteredRequests.length)} of{" "}
+                {filteredRequests.length} results
+              </span>
+              {(searchTerm ||
+                statusFilter !== "all-statuses" ||
+                departmentFilter !== "all-departments" ||
+                priorityFilter !== "all-priorities") && (
+                <span className="text-indigo-600 font-medium">
+                  (filtered from {allRequests.length} total)
+                </span>
+              )}
             </div>
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm">
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="bg-indigo-600 text-white border-indigo-600"
-              >
-                1
-              </Button>
-              <Button variant="outline" size="sm">
-                2
-              </Button>
-              <Button variant="outline" size="sm">
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+
+            {totalPages > 1 && (
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => goToPage(1)}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronsLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+
+                {/* Page Numbers */}
+                <div className="flex space-x-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => goToPage(pageNum)}
+                        className={
+                          currentPage === pageNum
+                            ? "bg-indigo-600 text-white border-indigo-600"
+                            : ""
+                        }
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => goToPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronsRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
         </Card>
       </div>
