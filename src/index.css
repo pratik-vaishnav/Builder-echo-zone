@@ -3,6 +3,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Modern theme enhancements */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-optical-sizing: auto;
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
