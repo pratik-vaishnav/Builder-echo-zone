@@ -23,21 +23,15 @@ import {
   Search,
   Filter,
   Plus,
-  Package,
   FileText,
-  CheckCircle,
-  Clock,
-  XCircle,
   MoreHorizontal,
   Download,
   ChevronLeft,
   ChevronRight,
-  Settings,
-  User,
-  Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import Layout from "@/components/shared/Layout";
 
 // Mock data
 const requestsData = [
@@ -153,304 +147,197 @@ const requestsData = [
   },
 ];
 
-const SidebarItem = ({
-  icon: Icon,
-  label,
-  isActive = false,
-  to,
-}: {
-  icon: any;
-  label: string;
-  isActive?: boolean;
-  to?: string;
-}) => {
-  const content = (
-    <div
-      className={cn(
-        "w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg transition-colors",
-        isActive
-          ? "bg-indigo-600 text-white"
-          : "text-gray-700 hover:bg-gray-100",
-      )}
-    >
-      <Icon className="h-5 w-5" />
-      <span className="font-medium">{label}</span>
-    </div>
-  );
-
-  return to ? <Link to={to}>{content}</Link> : <button>{content}</button>;
-};
-
 const PurchaseRequests = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                <Package className="h-5 w-5 text-white" />
-              </div>
-              <h1 className="text-xl font-semibold text-gray-900">
-                Purchase Manager
-              </h1>
-            </div>
-            <nav className="hidden md:flex space-x-8">
-              <Link
-                to="/dashboard"
-                className="text-gray-500 hover:text-gray-700"
-              >
-                Dashboard
-              </Link>
-              <span className="text-indigo-600 font-medium border-b-2 border-indigo-600 pb-2">
-                Purchase Requests
-              </span>
-              <Link
-                to="/approve-requests"
-                className="text-gray-500 hover:text-gray-700"
-              >
-                Approve Requests
-              </Link>
-              <Link
-                to="/purchase-orders"
-                className="text-gray-500 hover:text-gray-700"
-              >
-                Purchase Orders
-              </Link>
-            </nav>
+    <Layout currentPage="purchase-requests">
+      <div className="page-container">
+        {/* Header with icon and title */}
+        <div className="flex items-center space-x-4 mb-8">
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+            <FileText className="h-8 w-8 text-white" />
           </div>
-          <Link to="/profile">
-            <Avatar>
-              <AvatarImage src="/placeholder.svg" />
-              <AvatarFallback className="bg-indigo-100 text-indigo-600">
-                AB
-              </AvatarFallback>
-            </Avatar>
-          </Link>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Purchase Requests
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Manage and track all purchase requests
+            </p>
+          </div>
+          <div className="flex-1 flex justify-end space-x-3">
+            <Button variant="outline" className="shadow-sm">
+              <Download className="h-4 w-4 mr-2" />
+              Export Data
+            </Button>
+            <Link to="/submit-request">
+              <Button className="btn-gradient shadow-lg">
+                <Plus className="h-4 w-4 mr-2" />
+                Create New Request
+              </Button>
+            </Link>
+          </div>
         </div>
-      </header>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-73px)]">
-          <div className="p-4 space-y-2">
-            <SidebarItem icon={Building2} label="Dashboard" to="/dashboard" />
-            <SidebarItem
-              icon={FileText}
-              label="Purchase Requests"
-              isActive={true}
-            />
-            <SidebarItem
-              icon={CheckCircle}
-              label="Approve Requests"
-              to="/approve-requests"
-            />
-            <SidebarItem
-              icon={Package}
-              label="Purchase Orders"
-              to="/purchase-orders"
-            />
-          </div>
-          <div className="absolute bottom-4 left-4 space-y-2">
-            <SidebarItem icon={User} label="User Profile" to="/profile" />
-            <SidebarItem icon={Settings} label="Settings" />
-          </div>
-        </aside>
-
-        {/* Main Content */}
-        <main className="flex-1 p-6">
-          <div className="max-w-7xl mx-auto">
-            {/* Header with icon and title */}
-            <div className="flex items-center space-x-4 mb-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
-                <FileText className="h-8 w-8 text-white" />
+        {/* Filters */}
+        <Card className="mb-6 card-shadow">
+          <CardContent className="p-6">
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex-1 min-w-80">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search requests..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
               </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Purchase Requests
-                </h2>
-              </div>
-              <div className="flex-1 flex justify-end space-x-3">
-                <Button variant="outline">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export Data
-                </Button>
-                <Link to="/submit-request">
-                  <Button className="bg-indigo-600 hover:bg-indigo-700">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create New Request
-                  </Button>
-                </Link>
-              </div>
+              <Select defaultValue="all-statuses">
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all-statuses">All Statuses</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                  <SelectItem value="in-review">In Review</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select defaultValue="all-departments">
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="All Departments" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all-departments">
+                    All Departments
+                  </SelectItem>
+                  <SelectItem value="marketing">Marketing</SelectItem>
+                  <SelectItem value="design">Design</SelectItem>
+                  <SelectItem value="engineering">Engineering</SelectItem>
+                  <SelectItem value="operations">Operations</SelectItem>
+                  <SelectItem value="it">IT</SelectItem>
+                  <SelectItem value="sales">Sales</SelectItem>
+                  <SelectItem value="hr">HR</SelectItem>
+                  <SelectItem value="finance">Finance</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select defaultValue="all-priorities">
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="All Priorities" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all-priorities">All Priorities</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="outline">Clear Filters</Button>
             </div>
+          </CardContent>
+        </Card>
 
-            {/* Filters */}
-            <Card className="mb-6">
-              <CardContent className="p-6">
-                <div className="flex flex-wrap items-center gap-4">
-                  <div className="flex-1 min-w-80">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                      <Input
-                        placeholder="Search requests..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                      />
+        {/* Requests Table */}
+        <Card className="card-shadow">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Requester</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Department</TableHead>
+                <TableHead>Priority</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {requestsData.map((request) => (
+                <TableRow key={request.id}>
+                  <TableCell>
+                    <div className="flex items-center space-x-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-indigo-100 text-indigo-600 text-xs font-semibold">
+                          {request.avatar}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="font-medium text-gray-900">
+                        {request.requester}
+                      </div>
                     </div>
-                  </div>
-                  <Select defaultValue="all-statuses">
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="All Statuses" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all-statuses">All Statuses</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="approved">Approved</SelectItem>
-                      <SelectItem value="rejected">Rejected</SelectItem>
-                      <SelectItem value="in-review">In Review</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select defaultValue="all-departments">
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="All Departments" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all-departments">
-                        All Departments
-                      </SelectItem>
-                      <SelectItem value="marketing">Marketing</SelectItem>
-                      <SelectItem value="design">Design</SelectItem>
-                      <SelectItem value="engineering">Engineering</SelectItem>
-                      <SelectItem value="operations">Operations</SelectItem>
-                      <SelectItem value="it">IT</SelectItem>
-                      <SelectItem value="sales">Sales</SelectItem>
-                      <SelectItem value="hr">HR</SelectItem>
-                      <SelectItem value="finance">Finance</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select defaultValue="all-priorities">
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="All Priorities" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all-priorities">
-                        All Priorities
-                      </SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="low">Low</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Button variant="outline">Clear Filters</Button>
-                </div>
-              </CardContent>
-            </Card>
+                  </TableCell>
+                  <TableCell className="text-gray-600">
+                    {request.date}
+                  </TableCell>
+                  <TableCell className="font-semibold">
+                    {request.amount}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="bg-gray-50">
+                      {request.department}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={cn("border-0", request.priorityColor)}>
+                      {request.priority}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="max-w-xs">
+                    <p className="text-sm text-gray-600 truncate">
+                      {request.description}
+                    </p>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={cn("border-0", request.statusColor)}>
+                      {request.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => alert("More options menu would open here")}
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
 
-            {/* Requests Table */}
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Text</TableHead>
-                    <TableHead>Requester</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Department</TableHead>
-                    <TableHead>Priority</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Text</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {requestsData.map((request) => (
-                    <TableRow key={request.id}>
-                      <TableCell>
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="bg-indigo-100 text-indigo-600 text-xs">
-                            {request.avatar}
-                          </AvatarFallback>
-                        </Avatar>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {request.requester}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-gray-600">
-                        {request.date}
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {request.amount}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{request.department}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          className={cn("border-0", request.priorityColor)}
-                        >
-                          {request.priority}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="max-w-xs">
-                        <p className="text-sm text-gray-600 truncate">
-                          {request.description}
-                        </p>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={cn("border-0", request.statusColor)}>
-                          {request.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            alert("More options menu would open here")
-                          }
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              {/* Pagination */}
-              <div className="flex items-center justify-between p-6 border-t border-gray-200">
-                <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="bg-indigo-600 text-white"
-                  >
-                    1
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    2
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </Card>
+          {/* Pagination */}
+          <div className="flex items-center justify-between p-6 border-t border-gray-200">
+            <div className="text-sm text-gray-500">
+              Showing 1-{requestsData.length} of {requestsData.length} requests
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" size="sm">
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-indigo-600 text-white border-indigo-600"
+              >
+                1
+              </Button>
+              <Button variant="outline" size="sm">
+                2
+              </Button>
+              <Button variant="outline" size="sm">
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        </main>
+        </Card>
       </div>
-    </div>
+    </Layout>
   );
 };
 
