@@ -148,11 +148,27 @@
   }
 
   .btn-gradient {
-    @apply bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white;
+    @apply bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200;
   }
 
   .text-gradient {
     @apply bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent;
+  }
+
+  .card-modern {
+    @apply bg-white/80 backdrop-blur-lg border border-gray-200/50 shadow-lg rounded-xl;
+  }
+
+  .input-modern {
+    @apply bg-white/70 backdrop-blur-sm border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-0 hover:bg-white transition-all duration-200;
+  }
+
+  .glassmorphism {
+    @apply bg-white/80 backdrop-blur-lg border border-gray-200/50;
+  }
+
+  .gradient-bg {
+    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100;
   }
 }
 
@@ -171,4 +187,34 @@
     "Droid Sans",
     "Helvetica Neue",
     sans-serif;
+}
+
+/* Enhanced animations */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
 }
