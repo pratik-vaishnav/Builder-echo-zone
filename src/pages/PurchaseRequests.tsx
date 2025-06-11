@@ -199,6 +199,12 @@ const PurchaseRequests = () => {
               </h1>
             </div>
             <nav className="hidden md:flex space-x-8">
+              <Link
+                to="/dashboard"
+                className="text-gray-500 hover:text-gray-700"
+              >
+                Dashboard
+              </Link>
               <span className="text-indigo-600 font-medium border-b-2 border-indigo-600 pb-2">
                 Purchase Requests
               </span>
@@ -229,6 +235,7 @@ const PurchaseRequests = () => {
         {/* Sidebar */}
         <aside className="w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-73px)]">
           <div className="p-4 space-y-2">
+            <SidebarItem icon={Building2} label="Dashboard" to="/dashboard" />
             <SidebarItem
               icon={FileText}
               label="Purchase Requests"

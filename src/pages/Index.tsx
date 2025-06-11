@@ -245,6 +245,12 @@ const Index = () => {
             </div>
             <nav className="hidden md:flex space-x-8">
               <Link
+                to="/dashboard"
+                className="text-gray-500 hover:text-gray-700"
+              >
+                Dashboard
+              </Link>
+              <Link
                 to="/purchase-requests"
                 className="text-gray-500 hover:text-gray-700"
               >
@@ -274,8 +280,17 @@ const Index = () => {
         {/* Sidebar */}
         <aside className="w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-73px)]">
           <div className="p-4 space-y-2">
-            <SidebarItem icon={FileText} label="Purchase Requests" />
-            <SidebarItem icon={CheckCircle} label="Approve Requests" />
+            <SidebarItem icon={Building2} label="Dashboard" to="/dashboard" />
+            <SidebarItem
+              icon={FileText}
+              label="Purchase Requests"
+              to="/purchase-requests"
+            />
+            <SidebarItem
+              icon={CheckCircle}
+              label="Approve Requests"
+              to="/approve-requests"
+            />
             <SidebarItem
               icon={ShoppingCart}
               label="Purchase Orders"

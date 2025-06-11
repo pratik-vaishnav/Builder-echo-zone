@@ -19,6 +19,7 @@ import {
   Plus,
   Trash2,
   ChevronDown,
+  Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useNavigate } from "react-router-dom";
@@ -125,6 +126,7 @@ const SubmitRequest = () => {
             Dashboard
           </h2>
           <div className="space-y-2">
+            <SidebarItem icon={Building2} label="Dashboard" to="/dashboard" />
             <SidebarItem
               icon={FileText}
               label="Submit Purchase Request"
