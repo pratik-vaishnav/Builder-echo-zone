@@ -38,12 +38,10 @@ class MockWebSocketService {
   };
 
   constructor() {
-    // Simulate connection after a short delay
-    setTimeout(() => {
-      this.isConnected = true;
-      console.log("🔌 Mock WebSocket Connected");
-      this.startMockUpdates();
-    }, 1000);
+    // Connect immediately for better UX
+    this.isConnected = true;
+    console.log("🔌 Mock WebSocket Connected");
+    this.startMockUpdates();
   }
 
   private startMockUpdates() {
@@ -108,16 +106,19 @@ class MockWebSocketService {
     }
     this.subscribers.get(topic)!.add(callback);
 
-    // Send initial data for dashboard statistics
+    // Send initial data for dashboard statistics immediately
     if (topic === "dashboard-statistics" && this.isConnected) {
+      // Send initial statistics immediately
+      const statsUpdate: StatisticsUpdate = {
+        type: "STATISTICS_UPDATE",
+        statistics: this.mockData.statistics,
+        timestamp: new Date().toISOString(),
+      };
+
+      // Use setTimeout to ensure it's sent after component mounts
       setTimeout(() => {
-        const statsUpdate: StatisticsUpdate = {
-          type: "STATISTICS_UPDATE",
-          statistics: this.mockData.statistics,
-          timestamp: new Date().toISOString(),
-        };
         callback(statsUpdate);
-      }, 500);
+      }, 100);
     }
 
     // Return unsubscribe function
