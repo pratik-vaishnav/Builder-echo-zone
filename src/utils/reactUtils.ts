@@ -3,6 +3,8 @@
  * Prevents "Objects are not valid as a React child" errors
  */
 
+import React from "react";
+
 /**
  * Safely renders any value as a string for React components
  * Handles objects, arrays, null, undefined, etc.
@@ -64,7 +66,7 @@ export function extractStringValue(data: any, fallback: string = ""): string {
   if (typeof data === "object") {
     // Common property names to look for
     const stringProps = ["name", "title", "label", "text", "value", "displayName"];
-    
+
     for (const prop of stringProps) {
       if (data[prop] && typeof data[prop] === "string") {
         return data[prop];
@@ -87,11 +89,11 @@ export function extractDepartmentNames(departments: any[]): string[] {
     if (typeof dept === "string") {
       return dept;
     }
-    
+
     if (typeof dept === "object" && dept !== null) {
       return dept.name || dept.title || dept.department || String(dept);
     }
-    
+
     return String(dept);
   }).filter(name => name && name.trim().length > 0);
 }
@@ -105,7 +107,7 @@ export function isReactSafe(value: any): boolean {
   }
 
   const type = typeof value;
-  
+
   if (type === "string" || type === "number" || type === "boolean") {
     return true;
   }
@@ -115,12 +117,12 @@ export function isReactSafe(value: any): boolean {
     if (value.$$typeof) {
       return true;
     }
-    
+
     // Plain objects are not safe
     if (value.constructor === Object || value.constructor === undefined) {
       return false;
     }
-    
+
     // Arrays are safe if all elements are safe
     if (Array.isArray(value)) {
       return value.every(item => isReactSafe(item));
