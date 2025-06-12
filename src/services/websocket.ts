@@ -1,5 +1,5 @@
 import { Client } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
+import * as SockJS from "sockjs-client";
 
 export interface NotificationMessage {
   type: string;
