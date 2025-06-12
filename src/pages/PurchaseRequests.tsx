@@ -98,11 +98,25 @@ const PurchaseRequests = () => {
   const loadDepartments = async () => {
     try {
       const depts = await apiService.getDepartments();
-      // Extract department names from the objects returned by the API
-      const departmentNames =
-        Array.isArray(depts) && depts.length > 0 && typeof depts[0] === "object"
-          ? depts.map((dept) => dept.name)
-          : depts;
+
+      // Ensure we always have an array of strings
+      let departmentNames: string[] = [];
+
+      if (Array.isArray(depts)) {
+        departmentNames = depts.map(dept => {
+          if (typeof dept === 'string') {
+            return dept;
+          } else if (typeof dept === 'object' && dept.name) {
+            return dept.name;
+          } else {
+            return String(dept);
+          }
+        });
+      } else {
+        // Fallback if not an array
+        departmentNames = ["IT", "HR", "Finance", "Marketing", "Operations"];
+      }
+
       setDepartments(departmentNames);
     } catch (error) {
       console.error("Failed to load departments:", error);
@@ -254,12 +268,10 @@ const PurchaseRequests = () => {
                 <SelectContent>
                   <SelectItem value="all">All Departments</SelectItem>
                   {departments.map((dept) => (
-                    <SelectItem
-                      key={typeof dept === "string" ? dept : dept.name}
-                      value={typeof dept === "string" ? dept : dept.name}
-                    >
-                      {typeof dept === "string" ? dept : dept.name}
+                    <SelectItem key={dept} value={dept}>
+                      {dept}
                     </SelectItem>
+                  ))}
                   ))}
                 </SelectContent>
               </Select>
