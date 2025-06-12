@@ -26,7 +26,7 @@ spring:
       connection-test-query: SELECT 1
       leak-detection-threshold: 60000
 
-  # JPA Configuration (for entities that still need it)
+  # JPA Configuration (minimal - primarily using JDBC Template)
   jpa:
     hibernate:
       ddl-auto: validate
@@ -35,9 +35,9 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: false
-        # Performance optimizations
+        # Reduced JPA usage - most operations via JDBC Template
         jdbc:
-          batch_size: 25
+          batch_size: 50
         order_inserts: true
         order_updates: true
         batch_versioned_data: true
@@ -45,12 +45,12 @@ spring:
           provider_disables_autocommit: true
     defer-datasource-initialization: false
 
-  # JDBC Template Configuration
+  # JDBC Template Configuration - Optimized for high performance
   jdbc:
     template:
-      query-timeout: 30
-      max-rows: 1000
-      fetch-size: 100
+      query-timeout: 30 # 30 seconds timeout for queries
+      max-rows: 10000 # Maximum rows to fetch (increased for reports)
+      fetch-size: 100 # Optimal fetch size for MySQL
 
   # SQL Script Configuration
   sql:
