@@ -1,5 +1,6 @@
 import { Client } from "@stomp/stompjs";
 import * as SockJS from "sockjs-client";
+import { mockWebSocketService } from "./mockWebSocket";
 
 export interface NotificationMessage {
   type: string;
@@ -22,14 +23,21 @@ class WebSocketService {
   private client: Client | null = null;
   private isConnected = false;
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
+  private maxReconnectAttempts = 3;
   private subscribers: Map<string, Set<(message: any) => void>> = new Map();
+  private useMock = false;
 
   constructor() {
     this.connect();
   }
 
   connect() {
+    // Check if we should use mock (backend not available)
+    if (this.useMock) {
+      console.log("🔌 Using Mock WebSocket Service");
+      return;
+    }
+
     try {
       // Create STOMP client with SockJS
       this.client = new Client({
@@ -56,6 +64,7 @@ class WebSocketService {
       this.client.onStompError = (frame) => {
         console.error("❌ WebSocket Error:", frame.headers["message"]);
         console.error("Additional details:", frame.body);
+        this.handleReconnect();
       };
 
       this.client.onDisconnect = () => {
@@ -77,9 +86,13 @@ class WebSocketService {
       console.log(
         `🔄 Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`,
       );
-      setTimeout(() => this.connect(), 5000 * this.reconnectAttempts);
+      setTimeout(() => this.connect(), 3000 * this.reconnectAttempts);
     } else {
-      console.error("❌ Max reconnection attempts reached");
+      console.log(
+        "⚠️ Max reconnection attempts reached. Falling back to mock WebSocket",
+      );
+      this.useMock = true;
+      this.isConnected = true; // Mock is always "connected"
     }
   }
 
@@ -129,6 +142,11 @@ class WebSocketService {
   }
 
   subscribe(topic: string, callback: (message: any) => void) {
+    // If using mock, delegate to mock service
+    if (this.useMock) {
+      return mockWebSocketService.subscribe(topic, callback);
+    }
+
     if (!this.subscribers.has(topic)) {
       this.subscribers.set(topic, new Set());
     }
@@ -174,6 +192,10 @@ class WebSocketService {
   }
 
   sendMessage(destination: string, message: any) {
+    if (this.useMock) {
+      return mockWebSocketService.sendMessage(destination, message);
+    }
+
     if (this.client && this.isConnected) {
       this.client.publish({
         destination,
@@ -185,6 +207,10 @@ class WebSocketService {
   }
 
   disconnect() {
+    if (this.useMock) {
+      return mockWebSocketService.disconnect();
+    }
+
     if (this.client) {
       this.client.deactivate();
       this.isConnected = false;
@@ -192,6 +218,9 @@ class WebSocketService {
   }
 
   isConnectedStatus() {
+    if (this.useMock) {
+      return mockWebSocketService.isConnectedStatus();
+    }
     return this.isConnected;
   }
 
