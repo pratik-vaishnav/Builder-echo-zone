@@ -7,6 +7,7 @@ import com.procureflow.repository.PurchaseRequestRepository;
 import com.procureflow.repository.UserRepository;
 import com.procureflow.security.services.UserPrincipal;
 import com.procureflow.service.PurchaseRequestService;
+import com.procureflow.service.RealTimeNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,8 +22,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Purchase Request Service Implementation
- * Business logic implementation for purchase request management
+ * Purchase Request Service Implementation with Real-time Features
+ * Enhanced with WebSocket notifications and live updates
  */
 @Service
 @Transactional
@@ -33,6 +34,9 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RealTimeNotificationService notificationService;
 
     @Override
     public PurchaseRequestDTO create(PurchaseRequestDTO requestDTO) {
@@ -55,7 +59,12 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
         }
 
         PurchaseRequest savedRequest = purchaseRequestRepository.save(request);
-        return convertToDTO(savedRequest);
+        PurchaseRequestDTO resultDTO = convertToDTO(savedRequest);
+
+        // Send real-time notification
+        notificationService.broadcastPurchaseRequestUpdate(resultDTO, "CREATED");
+
+        return resultDTO;
     }
 
     @Override
@@ -90,7 +99,12 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
         }
 
         PurchaseRequest savedRequest = purchaseRequestRepository.save(existingRequest);
-        return convertToDTO(savedRequest);
+        PurchaseRequestDTO resultDTO = convertToDTO(savedRequest);
+
+        // Send real-time notification
+        notificationService.broadcastPurchaseRequestUpdate(resultDTO, "UPDATED");
+
+        return resultDTO;
     }
 
     @Override
@@ -138,9 +152,21 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
         PurchaseRequest request = purchaseRequestRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Purchase request not found"));
         
+        RequestStatus oldStatus = request.getStatus();
         request.setStatus(status);
         PurchaseRequest savedRequest = purchaseRequestRepository.save(request);
-        return convertToDTO(savedRequest);
+        PurchaseRequestDTO resultDTO = convertToDTO(savedRequest);
+
+        // Send real-time notifications
+        notificationService.broadcastPurchaseRequestUpdate(resultDTO, status.toString());
+        notificationService.broadcastWorkflowUpdate(
+                id, 
+                oldStatus.toString(), 
+                status.toString(), 
+                "Status updated manually"
+        );
+
+        return resultDTO;
     }
 
     @Override
@@ -153,7 +179,12 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
         
         request.setAssignedTo(assignee);
         PurchaseRequest savedRequest = purchaseRequestRepository.save(request);
-        return convertToDTO(savedRequest);
+        PurchaseRequestDTO resultDTO = convertToDTO(savedRequest);
+
+        // Send real-time notification
+        notificationService.broadcastPurchaseRequestUpdate(resultDTO, "ASSIGNED");
+
+        return resultDTO;
     }
 
     @Override
@@ -163,7 +194,11 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
         
         // Soft delete by setting status to CANCELLED
         request.setStatus(RequestStatus.CANCELLED);
-        purchaseRequestRepository.save(request);
+        PurchaseRequest savedRequest = purchaseRequestRepository.save(request);
+        PurchaseRequestDTO resultDTO = convertToDTO(savedRequest);
+
+        // Send real-time notification
+        notificationService.broadcastPurchaseRequestUpdate(resultDTO, "CANCELLED");
     }
 
     @Override
@@ -180,16 +215,23 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
         // Total counts by status
         stats.put("totalRequests", purchaseRequestRepository.count());
         stats.put("pendingRequests", purchaseRequestRepository.countByStatus(RequestStatus.PENDING));
+        stats.put("underReviewRequests", purchaseRequestRepository.countByStatus(RequestStatus.UNDER_REVIEW));
         stats.put("approvedRequests", purchaseRequestRepository.countByStatus(RequestStatus.APPROVED));
         stats.put("rejectedRequests", purchaseRequestRepository.countByStatus(RequestStatus.REJECTED));
+        stats.put("inProgressRequests", purchaseRequestRepository.countByStatus(RequestStatus.IN_PROGRESS));
+        stats.put("completedRequests", purchaseRequestRepository.countByStatus(RequestStatus.COMPLETED));
         
-        // Total amounts by status
+        // Total amounts by status (in Rupees)
         stats.put("totalSpent", purchaseRequestRepository.sumTotalAmountByStatus(RequestStatus.COMPLETED));
         stats.put("pendingAmount", purchaseRequestRepository.sumTotalAmountByStatus(RequestStatus.PENDING));
+        stats.put("approvedAmount", purchaseRequestRepository.sumTotalAmountByStatus(RequestStatus.APPROVED));
+        stats.put("inProgressAmount", purchaseRequestRepository.sumTotalAmountByStatus(RequestStatus.IN_PROGRESS));
         
         // Recent activity
         LocalDateTime lastWeek = LocalDateTime.now().minusDays(7);
+        LocalDateTime lastMonth = LocalDateTime.now().minusDays(30);
         stats.put("requestsThisWeek", purchaseRequestRepository.countRequestsSince(lastWeek));
+        stats.put("requestsThisMonth", purchaseRequestRepository.countRequestsSince(lastMonth));
         
         // Department breakdown
         List<Object[]> departmentStats = purchaseRequestRepository.getRequestCountByDepartment();
@@ -207,6 +249,25 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
         }
         stats.put("statusBreakdown", statusMap);
         
+        // Add timestamp for real-time updates
+        stats.put("lastUpdated", LocalDateTime.now());
+        
+        // Monthly trends (last 6 months)
+        List<Map<String, Object>> monthlyTrends = new ArrayList<>();
+        for (int i = 5; i >= 0; i--) {
+            LocalDateTime monthStart = LocalDateTime.now().minusMonths(i).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+            LocalDateTime monthEnd = monthStart.plusMonths(1).minusSeconds(1);
+            
+            long count = purchaseRequestRepository.countRequestsSince(monthStart) - 
+                        purchaseRequestRepository.countRequestsSince(monthEnd.plusSeconds(1));
+            
+            Map<String, Object> monthData = new HashMap<>();
+            monthData.put("month", monthStart.getMonth().toString());
+            monthData.put("count", count);
+            monthlyTrends.add(monthData);
+        }
+        stats.put("monthlyTrends", monthlyTrends);
+        
         return stats;
     }
 
@@ -215,7 +276,7 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
         return userRepository.findAllDepartments();
     }
 
-    // Helper methods
+    // Helper methods remain the same...
     private UserPrincipal getCurrentUser() {
         return (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
