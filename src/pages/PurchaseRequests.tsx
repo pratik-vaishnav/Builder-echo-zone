@@ -37,6 +37,7 @@ import { Link } from "react-router-dom";
 import Layout from "@/components/shared/Layout";
 import { formatCurrency } from "@/utils/currency";
 import { apiService } from "@/services/api";
+import { extractDepartmentNames, validateForReact } from "@/utils/reactUtils";
 
 interface PurchaseRequest {
   id: number;
@@ -99,25 +100,18 @@ const PurchaseRequests = () => {
     try {
       const depts = await apiService.getDepartments();
 
-      // Ensure we always have an array of strings
-      let departmentNames: string[] = [];
+      // Validate the response for React safety
+      validateForReact(depts, "getDepartments API response");
 
-      if (Array.isArray(depts)) {
-        departmentNames = depts.map((dept) => {
-          if (typeof dept === "string") {
-            return dept;
-          } else if (typeof dept === "object" && dept.name) {
-            return dept.name;
-          } else {
-            return String(dept);
-          }
-        });
+      // Use utility function to extract department names safely
+      const departmentNames = extractDepartmentNames(depts);
+
+      // Fallback if no valid departments found
+      if (departmentNames.length === 0) {
+        setDepartments(["IT", "HR", "Finance", "Marketing", "Operations"]);
       } else {
-        // Fallback if not an array
-        departmentNames = ["IT", "HR", "Finance", "Marketing", "Operations"];
+        setDepartments(departmentNames);
       }
-
-      setDepartments(departmentNames);
     } catch (error) {
       console.error("Failed to load departments:", error);
       setDepartments(["IT", "HR", "Finance", "Marketing", "Operations"]);
