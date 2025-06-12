@@ -63,8 +63,13 @@ class RealWebSocketService {
       };
 
       this.ws.onerror = (error) => {
-        console.error("❌ Real WebSocket Error:", error);
-        this.handleReconnect();
+        console.log(
+          "❌ WebSocket connection failed - backend may not be running",
+        );
+        // Don't spam console with error objects, just note the connection failed
+        if (!this.isConnected) {
+          this.handleReconnect();
+        }
       };
     } catch (error) {
       console.error("Failed to create WebSocket connection:", error);
@@ -75,19 +80,26 @@ class RealWebSocketService {
   private handleReconnect() {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
-      const delay = Math.min(5000 * this.reconnectAttempts, 30000);
+      const delay = Math.min(10000 * this.reconnectAttempts, 60000);
 
-      console.log(
-        `🔄 Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${delay}ms`,
-      );
+      if (this.reconnectAttempts <= 2) {
+        console.log(
+          `🔄 Backend unavailable. Retrying WebSocket connection... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`,
+        );
+      }
 
       this.reconnectTimeout = window.setTimeout(() => {
         this.connect();
       }, delay);
     } else {
       console.log(
-        "❌ Max reconnection attempts reached. WebSocket service unavailable.",
+        "📡 WebSocket service running in offline mode. Start the backend to enable real-time features.",
       );
+      // Continue trying to reconnect at longer intervals
+      this.reconnectTimeout = window.setTimeout(() => {
+        this.reconnectAttempts = 0; // Reset attempts for next retry cycle
+        this.connect();
+      }, 120000); // Try again every 2 minutes
     }
   }
 

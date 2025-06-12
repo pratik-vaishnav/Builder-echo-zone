@@ -117,7 +117,8 @@ const Dashboard = () => {
     } catch (error) {
       console.error("Failed to load statistics from backend:", error);
 
-      // Don't use fallback mock data - show empty state or retry
+      // The API service now provides fallback mock data automatically
+      // So if we reach this catch block, something else went wrong
       setStatistics({
         totalRequests: 0,
         pendingRequests: 0,
@@ -252,7 +253,7 @@ const Dashboard = () => {
                 }`}
               ></div>
               <span className="text-xs text-gray-500">
-                Backend: {backendStatus.isAvailable ? "Connected" : "Offline"}
+                Backend: {backendStatus.isAvailable ? "Connected" : "Demo Mode"}
               </span>
             </div>
             <div className="text-xs text-gray-500">
@@ -394,7 +395,7 @@ const Dashboard = () => {
                       <p className="text-sm text-gray-500">
                         {backendStatus.isAvailable
                           ? "Waiting for real-time updates..."
-                          : "Connect backend to see live activity"}
+                          : "Running in demo mode - start backend for live updates"}
                       </p>
                     </div>
                   )}
