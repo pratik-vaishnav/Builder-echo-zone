@@ -3,8 +3,6 @@
  * Prevents "Objects are not valid as a React child" errors
  */
 
-import React from "react";
-
 /**
  * Safely renders any value as a string for React components
  * Handles objects, arrays, null, undefined, etc.
@@ -14,14 +12,18 @@ export function safeRender(value: any): string {
     return "";
   }
 
-  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+  if (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean"
+  ) {
     return String(value);
   }
 
   if (typeof value === "object") {
     // Handle arrays
     if (Array.isArray(value)) {
-      return value.map(item => safeRender(item)).join(", ");
+      return value.map((item) => safeRender(item)).join(", ");
     }
 
     // Handle objects - extract displayable value
@@ -65,7 +67,14 @@ export function extractStringValue(data: any, fallback: string = ""): string {
 
   if (typeof data === "object") {
     // Common property names to look for
-    const stringProps = ["name", "title", "label", "text", "value", "displayName"];
+    const stringProps = [
+      "name",
+      "title",
+      "label",
+      "text",
+      "value",
+      "displayName",
+    ];
 
     for (const prop of stringProps) {
       if (data[prop] && typeof data[prop] === "string") {
@@ -85,17 +94,19 @@ export function extractDepartmentNames(departments: any[]): string[] {
     return [];
   }
 
-  return departments.map(dept => {
-    if (typeof dept === "string") {
-      return dept;
-    }
+  return departments
+    .map((dept) => {
+      if (typeof dept === "string") {
+        return dept;
+      }
 
-    if (typeof dept === "object" && dept !== null) {
-      return dept.name || dept.title || dept.department || String(dept);
-    }
+      if (typeof dept === "object" && dept !== null) {
+        return dept.name || dept.title || dept.department || String(dept);
+      }
 
-    return String(dept);
-  }).filter(name => name && name.trim().length > 0);
+      return String(dept);
+    })
+    .filter((name) => name && name.trim().length > 0);
 }
 
 /**
@@ -125,7 +136,7 @@ export function isReactSafe(value: any): boolean {
 
     // Arrays are safe if all elements are safe
     if (Array.isArray(value)) {
-      return value.every(item => isReactSafe(item));
+      return value.every((item) => isReactSafe(item));
     }
   }
 
@@ -133,21 +144,56 @@ export function isReactSafe(value: any): boolean {
 }
 
 /**
- * HOC to catch and prevent object rendering errors
+ * Validates and logs potential React rendering issues
  */
-export function withSafeRender<T>(Component: React.ComponentType<T>) {
-  return function SafeComponent(props: T) {
-    try {
-      return <Component {...props} />;
-    } catch (error) {
-      if (error instanceof Error && error.message.includes("Objects are not valid as a React child")) {
-        console.error("React rendering error caught:", error);
-        console.error("Props that caused the error:", props);
-        return <div className="text-red-500 text-sm">Rendering error: Invalid object in component</div>;
+export function validateForReact(
+  value: any,
+  context: string = "unknown",
+): void {
+  if (!isReactSafe(value)) {
+    console.warn(
+      `⚠️ Potential React rendering issue in ${context}:`,
+      "Value is not safe to render directly:",
+      value,
+    );
+    console.warn(
+      "Consider using safeRender() or extractStringValue() to convert to string",
+    );
+  }
+}
+
+/**
+ * Processes API response data to ensure React-safe rendering
+ */
+export function processApiResponse(data: any): any {
+  if (Array.isArray(data)) {
+    return data.map((item) => processApiResponse(item));
+  }
+
+  if (data && typeof data === "object") {
+    const processed: any = {};
+
+    for (const [key, value] of Object.entries(data)) {
+      if (isReactSafe(value)) {
+        processed[key] = value;
+      } else if (typeof value === "object" && value !== null) {
+        // Convert object to string representation if it has a name property
+        if (value.name) {
+          processed[key] = value.name;
+        } else if (value.title) {
+          processed[key] = value.title;
+        } else {
+          processed[key] = safeRender(value);
+        }
+      } else {
+        processed[key] = safeRender(value);
       }
-      throw error;
     }
-  };
+
+    return processed;
+  }
+
+  return data;
 }
 
 export default {
@@ -155,5 +201,6 @@ export default {
   extractStringValue,
   extractDepartmentNames,
   isReactSafe,
-  withSafeRender,
+  validateForReact,
+  processApiResponse,
 };
