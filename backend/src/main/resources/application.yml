@@ -1,4 +1,4 @@
-# ProcureFlow Backend Configuration
+# ProcureFlow Backend Configuration - Optimized for Production
 server:
   port: 8080
   servlet:
@@ -8,40 +8,64 @@ spring:
   application:
     name: procureflow-backend
 
-  # Database Configuration
+  # Optimized MySQL Database Configuration
   datasource:
-    url: jdbc:mysql://localhost:3306/procureflow?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
-    username: root
-    password: password
+    url: jdbc:mysql://localhost:3306/procureflow?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&rewriteBatchedStatements=true&cachePrepStmts=true&useServerPrepStmts=true&prepStmtCacheSize=256&prepStmtCacheSqlLimit=2048
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:password}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-  # JPA Configuration
+    # HikariCP Connection Pool Optimization
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      pool-name: ProcureFlowHikariCP
+      max-lifetime: 1200000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+      leak-detection-threshold: 60000
+
+  # JPA Configuration (for entities that still need it)
   jpa:
     hibernate:
-      ddl-auto: create-drop
-    show-sql: true
+      ddl-auto: validate
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-        format_sql: true
-    defer-datasource-initialization: true
+        format_sql: false
+        # Performance optimizations
+        jdbc:
+          batch_size: 25
+        order_inserts: true
+        order_updates: true
+        batch_versioned_data: true
+        connection:
+          provider_disables_autocommit: true
+    defer-datasource-initialization: false
+
+  # JDBC Template Configuration
+  jdbc:
+    template:
+      query-timeout: 30
+      max-rows: 1000
+      fetch-size: 100
 
   # SQL Script Configuration
   sql:
     init:
-      mode: always
-      data-locations: classpath:data.sql
+      mode: never # Disabled for production, use Flyway/Liquibase instead
 
-  # H2 Console (for development/testing)
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+  # Cache Configuration for better performance
+  cache:
+    type: simple
+    cache-names: statistics,departments,users
 
-  # Mail Configuration (for notifications)
+  # Mail Configuration
   mail:
-    host: smtp.gmail.com
-    port: 587
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
     username: ${MAIL_USERNAME:your-email@gmail.com}
     password: ${MAIL_PASSWORD:your-app-password}
     properties:
@@ -54,15 +78,31 @@ spring:
 # ProcureFlow Custom Configuration
 procureflow:
   app:
-    jwtSecret: procureFlowSecretKey2024!@#$%^&*()
-    jwtExpirationMs: 86400000 # 24 hours
+    jwtSecret: ${JWT_SECRET:procureFlowSecretKey2024!@#$%^&*()}
+    jwtExpirationMs: ${JWT_EXPIRATION:86400000} # 24 hours
+
+  # Real-time configuration
+  websocket:
+    heartbeat-interval: 30000
+    message-size-limit: 8192
+    buffer-size-limit: 32768
+
+  # Business rules configuration
+  auto-approval:
+    enabled: true
+    thresholds:
+      regular: 50000 # ₹50,000
+      urgent: 25000 # ₹25,000
+      it-department: 100000 # ₹1,00,000
+      recurring-services: 200000 # ₹2,00,000
 
 # Logging Configuration
 logging:
   level:
-    com.procureflow: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.procureflow: INFO
+    org.springframework.jdbc: WARN
+    org.hibernate.SQL: WARN
+    org.springframework.web.socket: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
@@ -74,13 +114,17 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics,prometheus,caches
   endpoint:
     health:
-      show-details: always
+      show-details: when-authorized
   info:
     env:
       enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
 
 # Swagger/OpenAPI Configuration
 springdoc:
@@ -89,6 +133,7 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     operationsSorter: method
+    tagsSorter: alpha
 
 ---
 # Development Profile
@@ -98,15 +143,24 @@ spring:
       on-profile: dev
 
   datasource:
-    url: jdbc:h2:mem:procureflow
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: ""
+    url: jdbc:mysql://localhost:3306/procureflow_dev?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+    hikari:
+      maximum-pool-size: 10
 
   jpa:
     hibernate:
       ddl-auto: create-drop
-    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql
+
+logging:
+  level:
+    com.procureflow: DEBUG
+    org.springframework.jdbc: DEBUG
 
 ---
 # Production Profile
@@ -115,21 +169,29 @@ spring:
     activate:
       on-profile: prod
 
+  datasource:
+    url: ${DATABASE_URL:jdbc:mysql://localhost:3306/procureflow}
+    username: ${DATABASE_USERNAME:procureflow_user}
+    password: ${DATABASE_PASSWORD}
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+
   jpa:
     hibernate:
       ddl-auto: validate
     show-sql: false
 
-  sql:
-    init:
-      mode: never
-
 logging:
   level:
-    com.procureflow: INFO
-    org.hibernate.SQL: WARN
+    com.procureflow: WARN
+    org.springframework.jdbc: WARN
   file:
     name: /var/log/procureflow/application.log
+
+procureflow:
+  websocket:
+    heartbeat-interval: 60000 # Longer interval for production
 
 ---
 # Test Profile
@@ -147,3 +209,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+
+procureflow:
+  auto-approval:
+    enabled: false # Disable auto-approval in tests
