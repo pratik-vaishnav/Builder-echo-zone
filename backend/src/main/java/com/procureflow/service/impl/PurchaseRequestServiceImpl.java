@@ -1,11 +1,9 @@
 package com.procureflow.service.impl;
 
-import com.procureflow.dto.request.PurchaseRequestDTO;
-import com.procureflow.dto.request.RequestItemDTO;
-import com.procureflow.entity.*;
-import com.procureflow.repository.PurchaseRequestRepository;
-import com.procureflow.repository.UserRepository;
-import com.procureflow.security.services.UserPrincipal;
+import com.procureflow.entity.PurchaseRequest;
+import com.procureflow.entity.RequestStatus;
+import com.procureflow.entity.Priority;
+import com.procureflow.repository.jdbc.PurchaseRequestJdbcRepository;
 import com.procureflow.service.PurchaseRequestService;
 import com.procureflow.service.RealTimeNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +28,7 @@ import java.util.stream.Collectors;
 public class PurchaseRequestServiceImpl implements PurchaseRequestService {
 
     @Autowired
-    private PurchaseRequestRepository purchaseRequestRepository;
+    private PurchaseRequestJdbcRepository purchaseRequestRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -41,15 +39,15 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
     @Override
     public PurchaseRequestDTO create(PurchaseRequestDTO requestDTO) {
         PurchaseRequest request = convertToEntity(requestDTO);
-        
+
         // Set the current user as the requester
         UserPrincipal userPrincipal = getCurrentUser();
         User currentUser = userRepository.findById(userPrincipal.getId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        
+
         request.setRequestedBy(currentUser);
         request.setStatus(RequestStatus.PENDING);
-        
+
         // Calculate total amount from items
         if (request.getItems() != null && !request.getItems().isEmpty()) {
             BigDecimal totalAmount = request.getItems().stream()
@@ -84,7 +82,7 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
         if (requestDTO.getItems() != null) {
             // Clear existing items
             existingRequest.getItems().clear();
-            
+
             // Add new items
             for (RequestItemDTO itemDTO : requestDTO.getItems()) {
                 RequestItem item = convertItemToEntity(itemDTO);
@@ -134,7 +132,7 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
     }
 
     @Override
-    public Page<PurchaseRequestDTO> findByMultipleCriteria(RequestStatus status, String department, 
+    public Page<PurchaseRequestDTO> findByMultipleCriteria(RequestStatus status, String department,
                                                           Priority priority, Long requesterId, Pageable pageable) {
         Page<PurchaseRequest> requests = purchaseRequestRepository.findByMultipleCriteria(
                 status, department, priority, requesterId, pageable);
@@ -151,7 +149,7 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
     public PurchaseRequestDTO updateStatus(Long id, RequestStatus status) {
         PurchaseRequest request = purchaseRequestRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Purchase request not found"));
-        
+
         RequestStatus oldStatus = request.getStatus();
         request.setStatus(status);
         PurchaseRequest savedRequest = purchaseRequestRepository.save(request);
@@ -160,9 +158,9 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
         // Send real-time notifications
         notificationService.broadcastPurchaseRequestUpdate(resultDTO, status.toString());
         notificationService.broadcastWorkflowUpdate(
-                id, 
-                oldStatus.toString(), 
-                status.toString(), 
+                id,
+                oldStatus.toString(),
+                status.toString(),
                 "Status updated manually"
         );
 
@@ -173,10 +171,10 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
     public PurchaseRequestDTO assignRequest(Long requestId, Long assigneeId) {
         PurchaseRequest request = purchaseRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Purchase request not found"));
-        
+
         User assignee = userRepository.findById(assigneeId)
                 .orElseThrow(() -> new RuntimeException("Assignee not found"));
-        
+
         request.setAssignedTo(assignee);
         PurchaseRequest savedRequest = purchaseRequestRepository.save(request);
         PurchaseRequestDTO resultDTO = convertToDTO(savedRequest);
@@ -191,7 +189,7 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
     public void deleteById(Long id) {
         PurchaseRequest request = purchaseRequestRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Purchase request not found"));
-        
+
         // Soft delete by setting status to CANCELLED
         request.setStatus(RequestStatus.CANCELLED);
         PurchaseRequest savedRequest = purchaseRequestRepository.save(request);
@@ -211,7 +209,7 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
     @Override
     public Map<String, Object> getStatistics() {
         Map<String, Object> stats = new HashMap<>();
-        
+
         // Total counts by status
         stats.put("totalRequests", purchaseRequestRepository.count());
         stats.put("pendingRequests", purchaseRequestRepository.countByStatus(RequestStatus.PENDING));
@@ -220,19 +218,19 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
         stats.put("rejectedRequests", purchaseRequestRepository.countByStatus(RequestStatus.REJECTED));
         stats.put("inProgressRequests", purchaseRequestRepository.countByStatus(RequestStatus.IN_PROGRESS));
         stats.put("completedRequests", purchaseRequestRepository.countByStatus(RequestStatus.COMPLETED));
-        
+
         // Total amounts by status (in Rupees)
         stats.put("totalSpent", purchaseRequestRepository.sumTotalAmountByStatus(RequestStatus.COMPLETED));
         stats.put("pendingAmount", purchaseRequestRepository.sumTotalAmountByStatus(RequestStatus.PENDING));
         stats.put("approvedAmount", purchaseRequestRepository.sumTotalAmountByStatus(RequestStatus.APPROVED));
         stats.put("inProgressAmount", purchaseRequestRepository.sumTotalAmountByStatus(RequestStatus.IN_PROGRESS));
-        
+
         // Recent activity
         LocalDateTime lastWeek = LocalDateTime.now().minusDays(7);
         LocalDateTime lastMonth = LocalDateTime.now().minusDays(30);
         stats.put("requestsThisWeek", purchaseRequestRepository.countRequestsSince(lastWeek));
         stats.put("requestsThisMonth", purchaseRequestRepository.countRequestsSince(lastMonth));
-        
+
         // Department breakdown
         List<Object[]> departmentStats = purchaseRequestRepository.getRequestCountByDepartment();
         Map<String, Long> departmentMap = new HashMap<>();
@@ -240,7 +238,7 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
             departmentMap.put((String) row[0], (Long) row[1]);
         }
         stats.put("departmentBreakdown", departmentMap);
-        
+
         // Status breakdown
         List<Object[]> statusStats = purchaseRequestRepository.getRequestCountByStatus();
         Map<String, Long> statusMap = new HashMap<>();
@@ -248,26 +246,26 @@ public class PurchaseRequestServiceImpl implements PurchaseRequestService {
             statusMap.put(row[0].toString(), (Long) row[1]);
         }
         stats.put("statusBreakdown", statusMap);
-        
+
         // Add timestamp for real-time updates
         stats.put("lastUpdated", LocalDateTime.now());
-        
+
         // Monthly trends (last 6 months)
         List<Map<String, Object>> monthlyTrends = new ArrayList<>();
         for (int i = 5; i >= 0; i--) {
             LocalDateTime monthStart = LocalDateTime.now().minusMonths(i).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
             LocalDateTime monthEnd = monthStart.plusMonths(1).minusSeconds(1);
-            
-            long count = purchaseRequestRepository.countRequestsSince(monthStart) - 
+
+            long count = purchaseRequestRepository.countRequestsSince(monthStart) -
                         purchaseRequestRepository.countRequestsSince(monthEnd.plusSeconds(1));
-            
+
             Map<String, Object> monthData = new HashMap<>();
             monthData.put("month", monthStart.getMonth().toString());
             monthData.put("count", count);
             monthlyTrends.add(monthData);
         }
         stats.put("monthlyTrends", monthlyTrends);
-        
+
         return stats;
     }
 
