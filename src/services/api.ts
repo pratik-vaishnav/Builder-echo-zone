@@ -199,7 +199,9 @@ class ApiService {
       return this.handleResponse(response);
     } catch (error) {
       console.log("Backend unavailable, using mock departments data");
-      return MockDataService.generateMockDepartments();
+      // Return just department names for consistency with expected format
+      const mockDepartments = MockDataService.generateMockDepartments();
+      return mockDepartments.map((dept) => dept.name);
     }
   }
 
