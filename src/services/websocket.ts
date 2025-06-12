@@ -1,6 +1,18 @@
-import { Client } from "@stomp/stompjs";
-import * as SockJS from "sockjs-client";
 import { mockWebSocketService } from "./mockWebSocket";
+
+// Import WebSocket libraries with error handling
+let Client: any = null;
+let SockJS: any = null;
+
+try {
+  const stompModule = await import("@stomp/stompjs");
+  Client = stompModule.Client;
+
+  const sockjsModule = await import("sockjs-client");
+  SockJS = sockjsModule.default || sockjsModule;
+} catch (error) {
+  console.warn("WebSocket libraries not available, using mock service:", error);
+}
 
 export interface NotificationMessage {
   type: string;
@@ -28,12 +40,19 @@ class WebSocketService {
   private useMock = false;
 
   constructor() {
+    // Check if WebSocket libraries are available
+    if (!Client || !SockJS) {
+      console.log("📦 WebSocket libraries not available, using mock service");
+      this.useMock = true;
+      this.isConnected = true;
+      return;
+    }
     this.connect();
   }
 
   connect() {
-    // Check if we should use mock (backend not available)
-    if (this.useMock) {
+    // Check if we should use mock (backend not available or libraries not loaded)
+    if (this.useMock || !Client || !SockJS) {
       console.log("🔌 Using Mock WebSocket Service");
       return;
     }
