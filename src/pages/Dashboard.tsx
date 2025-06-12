@@ -22,6 +22,7 @@ import webSocketService, {
 } from "@/services/websocket";
 import { formatCurrency, formatCompactCurrency } from "@/utils/currency";
 import { backendHealthChecker } from "@/utils/backendHealth";
+import { apiService } from "@/services/api";
 
 interface Statistics {
   totalRequests?: number;
@@ -51,6 +52,7 @@ const Dashboard = () => {
     isAvailable: boolean;
     message: string;
   }>({ isAvailable: false, message: "Checking..." });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Check WebSocket connection status
@@ -85,77 +87,55 @@ const Dashboard = () => {
       "dashboard-updates",
       (notification: NotificationMessage) => {
         console.log("🔔 Dashboard notification:", notification);
-        setRecentNotifications((prev) => [notification, ...prev.slice(0, 4)]); // Keep last 5 notifications
+        setRecentNotifications((prev) => [notification, ...prev.slice(0, 4)]);
       },
     );
 
     // Load initial statistics
     loadInitialStatistics();
 
+    // Set up periodic statistics refresh
+    const statsInterval = setInterval(loadInitialStatistics, 30000);
+
     // Cleanup subscriptions
     return () => {
       unsubscribeStats();
       unsubscribeNotifications();
       stopHealthCheck();
+      clearInterval(statsInterval);
     };
   }, []);
 
   const loadInitialStatistics = async () => {
+    setLoading(true);
     try {
-      // First check if backend is available
-      const healthStatus = await backendHealthChecker.checkHealth();
-
-      if (healthStatus.isAvailable) {
-        // Try to load from backend API
-        const token = localStorage.getItem("token");
-        const response = await fetch(
-          "http://localhost:8080/api/purchase-requests/statistics",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            // Add timeout to prevent hanging
-            signal: AbortSignal.timeout(5000),
-          },
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          setStatistics(data);
-          setLastUpdateTime(new Date());
-          console.log("✅ Loaded statistics from backend API");
-          return;
-        }
-      }
+      // Try to load from real backend API
+      const data = await apiService.getStatistics();
+      setStatistics(data);
+      setLastUpdateTime(new Date());
+      console.log("✅ Loaded statistics from backend API");
     } catch (error) {
-      console.log(
-        "⚠️ Backend not available, using mock statistics:",
-        error.message,
-      );
+      console.error("Failed to load statistics from backend:", error);
+
+      // Don't use fallback mock data - show empty state or retry
+      setStatistics({
+        totalRequests: 0,
+        pendingRequests: 0,
+        underReviewRequests: 0,
+        approvedRequests: 0,
+        rejectedRequests: 0,
+        inProgressRequests: 0,
+        completedRequests: 0,
+        totalSpent: 0,
+        pendingAmount: 0,
+        approvedAmount: 0,
+        inProgressAmount: 0,
+        requestsThisWeek: 0,
+        requestsThisMonth: 0,
+      });
+    } finally {
+      setLoading(false);
     }
-
-    // Fallback to mock statistics
-    const mockStatistics = {
-      totalRequests: 127,
-      pendingRequests: 23,
-      underReviewRequests: 8,
-      approvedRequests: 45,
-      rejectedRequests: 12,
-      inProgressRequests: 18,
-      completedRequests: 21,
-      totalSpent: 2450000, // ₹24.5L
-      pendingAmount: 875000, // ₹8.75L
-      approvedAmount: 1250000, // ₹12.5L
-      inProgressAmount: 650000, // ₹6.5L
-      requestsThisWeek: 18,
-      requestsThisMonth: 47,
-      lastUpdated: new Date().toISOString(),
-    };
-
-    setStatistics(mockStatistics);
-    setLastUpdateTime(new Date());
-    console.log("📊 Using mock statistics for demo");
   };
 
   const statsData = [
@@ -257,15 +237,19 @@ const Dashboard = () => {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <div
-                className={`w-3 h-3 rounded-full ${isConnected ? "bg-green-500 animate-pulse" : "bg-red-500"}`}
+                className={`w-3 h-3 rounded-full ${
+                  isConnected ? "bg-green-500 animate-pulse" : "bg-red-500"
+                }`}
               ></div>
               <span className="text-sm text-gray-600">
-                {isConnected ? "Live" : "Mock Data"}
+                {isConnected ? "Live" : "Offline"}
               </span>
             </div>
             <div className="flex items-center space-x-2">
               <div
-                className={`w-2 h-2 rounded-full ${backendStatus.isAvailable ? "bg-green-500" : "bg-orange-500"}`}
+                className={`w-2 h-2 rounded-full ${
+                  backendStatus.isAvailable ? "bg-green-500" : "bg-orange-500"
+                }`}
               ></div>
               <span className="text-xs text-gray-500">
                 Backend: {backendStatus.isAvailable ? "Connected" : "Offline"}
@@ -303,9 +287,13 @@ const Dashboard = () => {
                     {stat.title}
                   </p>
                   <p className="text-3xl font-bold text-gray-900">
-                    {typeof stat.value === "string"
-                      ? stat.value
-                      : stat.value.toLocaleString()}
+                    {loading ? (
+                      <div className="animate-pulse bg-gray-300 h-8 w-16 rounded"></div>
+                    ) : typeof stat.value === "string" ? (
+                      stat.value
+                    ) : (
+                      stat.value.toLocaleString()
+                    )}
                   </p>
                   {stat.amount && stat.amount > 0 && (
                     <p className="text-sm text-gray-500">
@@ -404,9 +392,9 @@ const Dashboard = () => {
                     <div className="text-center py-8">
                       <Activity className="h-8 w-8 text-gray-400 mx-auto mb-2" />
                       <p className="text-sm text-gray-500">
-                        {isConnected
+                        {backendStatus.isAvailable
                           ? "Waiting for real-time updates..."
-                          : "Connect to see live activity"}
+                          : "Connect backend to see live activity"}
                       </p>
                     </div>
                   )}
@@ -428,26 +416,38 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center p-4 rounded-lg bg-blue-50">
                 <p className="text-2xl font-bold text-blue-600">
-                  {statistics.requestsThisMonth || 0}
+                  {loading ? (
+                    <div className="animate-pulse bg-blue-300 h-8 w-12 rounded mx-auto"></div>
+                  ) : (
+                    statistics.requestsThisMonth || 0
+                  )}
                 </p>
                 <p className="text-sm text-gray-600">Requests Created</p>
               </div>
               <div className="text-center p-4 rounded-lg bg-green-50">
                 <p className="text-2xl font-bold text-green-600">
-                  {formatCompactCurrency(
-                    (statistics.approvedAmount || 0) +
-                      (statistics.totalSpent || 0),
+                  {loading ? (
+                    <div className="animate-pulse bg-green-300 h-8 w-16 rounded mx-auto"></div>
+                  ) : (
+                    formatCompactCurrency(
+                      (statistics.approvedAmount || 0) +
+                        (statistics.totalSpent || 0),
+                    )
                   )}
                 </p>
                 <p className="text-sm text-gray-600">Total Processing</p>
               </div>
               <div className="text-center p-4 rounded-lg bg-purple-50">
                 <p className="text-2xl font-bold text-purple-600">
-                  {(
-                    ((statistics.completedRequests || 0) /
-                      Math.max(statistics.totalRequests || 1, 1)) *
-                    100
-                  ).toFixed(1)}
+                  {loading ? (
+                    <div className="animate-pulse bg-purple-300 h-8 w-12 rounded mx-auto"></div>
+                  ) : (
+                    (
+                      ((statistics.completedRequests || 0) /
+                        Math.max(statistics.totalRequests || 1, 1)) *
+                      100
+                    ).toFixed(1)
+                  )}
                   %
                 </p>
                 <p className="text-sm text-gray-600">Completion Rate</p>

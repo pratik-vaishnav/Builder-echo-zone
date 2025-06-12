@@ -1,4 +1,7 @@
-import { mockWebSocketService } from "./mockWebSocket";
+/**
+ * Real WebSocket Service for Backend Integration
+ * Connects to Spring Boot WebSocket endpoint
+ */
 
 export interface NotificationMessage {
   type: string;
@@ -17,22 +20,145 @@ export interface StatisticsUpdate {
   timestamp: string;
 }
 
-class WebSocketService {
+class RealWebSocketService {
+  private ws: WebSocket | null = null;
   private isConnected = false;
-  private useMock = true; // Start with mock by default
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 5;
   private subscribers: Map<string, Set<(message: any) => void>> = new Map();
+  private reconnectTimeout: number | null = null;
+  private heartbeatInterval: number | null = null;
 
   constructor() {
-    // Always use mock for now to avoid sockjs-client issues
-    console.log(
-      "🔌 Using Mock WebSocket Service (sockjs-client compatibility mode)",
-    );
-    this.isConnected = true;
+    this.connect();
+  }
+
+  private connect() {
+    try {
+      // Connect to Spring Boot WebSocket endpoint
+      this.ws = new WebSocket("ws://localhost:8080/websocket");
+
+      this.ws.onopen = () => {
+        console.log("✅ Real WebSocket Connected to Backend");
+        this.isConnected = true;
+        this.reconnectAttempts = 0;
+        this.startHeartbeat();
+        this.subscribeToTopics();
+      };
+
+      this.ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          this.handleMessage(message);
+        } catch (error) {
+          console.error("Error parsing WebSocket message:", error);
+        }
+      };
+
+      this.ws.onclose = () => {
+        console.log("📡 Real WebSocket Disconnected");
+        this.isConnected = false;
+        this.stopHeartbeat();
+        this.handleReconnect();
+      };
+
+      this.ws.onerror = (error) => {
+        console.error("❌ Real WebSocket Error:", error);
+        this.handleReconnect();
+      };
+    } catch (error) {
+      console.error("Failed to create WebSocket connection:", error);
+      this.handleReconnect();
+    }
+  }
+
+  private handleReconnect() {
+    if (this.reconnectAttempts < this.maxReconnectAttempts) {
+      this.reconnectAttempts++;
+      const delay = Math.min(5000 * this.reconnectAttempts, 30000);
+
+      console.log(
+        `🔄 Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${delay}ms`,
+      );
+
+      this.reconnectTimeout = window.setTimeout(() => {
+        this.connect();
+      }, delay);
+    } else {
+      console.log(
+        "❌ Max reconnection attempts reached. WebSocket service unavailable.",
+      );
+    }
+  }
+
+  private startHeartbeat() {
+    this.heartbeatInterval = window.setInterval(() => {
+      if (this.isConnected && this.ws?.readyState === WebSocket.OPEN) {
+        this.sendMessage("/app/heartbeat", {
+          type: "heartbeat",
+          timestamp: new Date().toISOString(),
+        });
+      }
+    }, 30000);
+  }
+
+  private stopHeartbeat() {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = null;
+    }
+  }
+
+  private subscribeToTopics() {
+    // Send subscription messages to backend
+    const subscriptions = [
+      "/app/subscribe/purchase-requests",
+      "/app/subscribe/dashboard",
+      "/app/subscribe/approvals",
+      "/app/subscribe/purchase-orders",
+    ];
+
+    subscriptions.forEach((topic) => {
+      this.sendMessage(topic, { action: "subscribe" });
+    });
+  }
+
+  private handleMessage(message: any) {
+    // Route message to appropriate subscribers based on type
+    const topic = this.getTopicFromMessageType(message.type);
+    this.notifySubscribers(topic, message);
+
+    // Broadcast to dashboard updates as well
+    if (topic !== "dashboard-updates") {
+      this.notifySubscribers("dashboard-updates", message);
+    }
+  }
+
+  private getTopicFromMessageType(type: string): string {
+    if (type?.includes("PURCHASE_REQUEST")) return "purchase-requests";
+    if (type?.includes("APPROVAL")) return "approvals";
+    if (type?.includes("PURCHASE_ORDER")) return "purchase-orders";
+    if (type?.includes("WORKFLOW")) return "workflow";
+    if (type?.includes("STATISTICS")) return "dashboard-statistics";
+    return "dashboard-updates";
   }
 
   subscribe(topic: string, callback: (message: any) => void) {
-    // Always delegate to mock service for compatibility
-    return mockWebSocketService.subscribe(topic, callback);
+    if (!this.subscribers.has(topic)) {
+      this.subscribers.set(topic, new Set());
+    }
+    this.subscribers.get(topic)!.add(callback);
+
+    // Return unsubscribe function
+    return () => {
+      const topicSubscribers = this.subscribers.get(topic);
+      if (topicSubscribers) {
+        topicSubscribers.delete(callback);
+        if (topicSubscribers.size === 0) {
+          this.subscribers.delete(topic);
+        }
+      }
+    };
   }
 
   private notifySubscribers(topic: string, message: any) {
@@ -43,7 +169,7 @@ class WebSocketService {
           callback(message);
         } catch (error) {
           console.error(
-            `Error in subscriber callback for topic ${topic}:`,
+            `Error in WebSocket subscriber callback for topic ${topic}:`,
             error,
           );
         }
@@ -52,15 +178,38 @@ class WebSocketService {
   }
 
   sendMessage(destination: string, message: any) {
-    return mockWebSocketService.sendMessage(destination, message);
+    if (this.isConnected && this.ws?.readyState === WebSocket.OPEN) {
+      const payload = {
+        destination,
+        body: JSON.stringify({
+          ...message,
+          timestamp: new Date().toISOString(),
+        }),
+      };
+      this.ws.send(JSON.stringify(payload));
+    } else {
+      console.warn("WebSocket not connected. Message not sent:", message);
+    }
   }
 
   disconnect() {
-    return mockWebSocketService.disconnect();
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+
+    this.stopHeartbeat();
+
+    if (this.ws) {
+      this.ws.close();
+      this.ws = null;
+    }
+
+    this.isConnected = false;
   }
 
   isConnectedStatus() {
-    return mockWebSocketService.isConnectedStatus();
+    return this.isConnected;
   }
 
   // Request browser notification permission
@@ -71,38 +220,12 @@ class WebSocketService {
     }
     return false;
   }
-
-  // Method to try upgrading to real WebSocket when backend is available
-  async tryUpgradeToRealWebSocket() {
-    try {
-      // Check if backend is available first
-      const response = await fetch("http://localhost:8080/actuator/health", {
-        method: "GET",
-        signal: AbortSignal.timeout(3000),
-      });
-
-      if (response.ok) {
-        console.log(
-          "✅ Backend is available, but staying with mock WebSocket for compatibility",
-        );
-        // We could implement real WebSocket here, but for now stick with mock
-        // to avoid the sockjs-client global issue
-      }
-    } catch (error) {
-      console.log("Backend not available, continuing with mock WebSocket");
-    }
-  }
 }
 
 // Create singleton instance
-export const webSocketService = new WebSocketService();
+export const webSocketService = new RealWebSocketService();
 
 // Request notification permission on load
-WebSocketService.requestNotificationPermission();
-
-// Try to upgrade to real WebSocket after a delay
-setTimeout(() => {
-  webSocketService.tryUpgradeToRealWebSocket();
-}, 2000);
+RealWebSocketService.requestNotificationPermission();
 
 export default webSocketService;
