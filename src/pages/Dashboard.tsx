@@ -20,6 +20,7 @@ import webSocketService, {
   StatisticsUpdate,
 } from "@/services/websocket";
 import { formatCurrency, formatCompactCurrency } from "@/utils/currency";
+import { backendHealthChecker } from "@/utils/backendHealth";
 
 interface Statistics {
   totalRequests?: number;
@@ -45,10 +46,28 @@ const Dashboard = () => {
   >([]);
   const [isConnected, setIsConnected] = useState(false);
   const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date());
+  const [backendStatus, setBackendStatus] = useState<{
+    isAvailable: boolean;
+    message: string;
+  }>({ isAvailable: false, message: "Checking..." });
 
   useEffect(() => {
     // Check WebSocket connection status
     setIsConnected(webSocketService.isConnectedStatus());
+
+    // Check backend health
+    const checkHealth = async () => {
+      const status = await backendHealthChecker.checkHealth();
+      setBackendStatus(status);
+    };
+    checkHealth();
+
+    // Start periodic backend health monitoring
+    const stopHealthCheck = backendHealthChecker.startPeriodicCheck(
+      (status) => {
+        setBackendStatus(status);
+      },
+    );
 
     // Subscribe to real-time statistics updates
     const unsubscribeStats = webSocketService.subscribe(
@@ -76,6 +95,7 @@ const Dashboard = () => {
     return () => {
       unsubscribeStats();
       unsubscribeNotifications();
+      stopHealthCheck();
     };
   }, []);
 
@@ -203,7 +223,15 @@ const Dashboard = () => {
                 className={`w-3 h-3 rounded-full ${isConnected ? "bg-green-500 animate-pulse" : "bg-red-500"}`}
               ></div>
               <span className="text-sm text-gray-600">
-                {isConnected ? "Live" : "Offline"}
+                {isConnected ? "Live" : "Mock Data"}
+              </span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div
+                className={`w-2 h-2 rounded-full ${backendStatus.isAvailable ? "bg-green-500" : "bg-orange-500"}`}
+              ></div>
+              <span className="text-xs text-gray-500">
+                Backend: {backendStatus.isAvailable ? "Connected" : "Offline"}
               </span>
             </div>
             <div className="text-xs text-gray-500">
