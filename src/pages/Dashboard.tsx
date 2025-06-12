@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/shared/Layout";
+import DevelopmentNotice from "@/components/DevelopmentNotice";
 import webSocketService, {
   NotificationMessage,
   StatisticsUpdate,
@@ -206,6 +207,7 @@ const Dashboard = () => {
 
   return (
     <Layout currentPage="dashboard">
+      <DevelopmentNotice />
       <div className="min-h-screen p-6 space-y-6">
         {/* Header with Real-time Status */}
         <div className="flex items-center justify-between">
