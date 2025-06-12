@@ -15,14 +15,18 @@ class BackendHealthChecker {
 
   async checkHealth(): Promise<HealthStatus> {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+
       const response = await fetch("http://localhost:8080/actuator/health", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
-        // Add timeout
-        signal: AbortSignal.timeout(5000),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         const healthData = await response.json();
@@ -39,12 +43,21 @@ class BackendHealthChecker {
         };
       }
     } catch (error) {
+      let errorMessage = "Backend connection failed";
+
+      if (error instanceof Error) {
+        if (error.name === "AbortError") {
+          errorMessage = "Backend connection timeout";
+        } else if (error.message.includes("fetch")) {
+          errorMessage = "Backend not running";
+        } else {
+          errorMessage = `Backend error: ${error.message}`;
+        }
+      }
+
       this.lastCheck = {
         isAvailable: false,
-        message:
-          error instanceof Error
-            ? `Backend not available: ${error.message}`
-            : "Backend connection failed",
+        message: errorMessage,
         lastChecked: new Date(),
       };
     }
