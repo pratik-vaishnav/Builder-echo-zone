@@ -103,10 +103,10 @@ const PurchaseRequests = () => {
       let departmentNames: string[] = [];
 
       if (Array.isArray(depts)) {
-        departmentNames = depts.map(dept => {
-          if (typeof dept === 'string') {
+        departmentNames = depts.map((dept) => {
+          if (typeof dept === "string") {
             return dept;
-          } else if (typeof dept === 'object' && dept.name) {
+          } else if (typeof dept === "object" && dept.name) {
             return dept.name;
           } else {
             return String(dept);
@@ -271,7 +271,6 @@ const PurchaseRequests = () => {
                     <SelectItem key={dept} value={dept}>
                       {dept}
                     </SelectItem>
-                  ))}
                   ))}
                 </SelectContent>
               </Select>
